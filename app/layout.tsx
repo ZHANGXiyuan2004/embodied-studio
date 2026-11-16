@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     template: '%s · 叉社具身工作室',
   },
   description:
-    '体验具身智能研究原型，分享想法，寻找合作伙伴，查看工作室共享器材。',
+    '叉社具身工作室展示样站：项目示例、器材演示、合作伙伴和指导教师。',
   icons: { icon: base + '/icon.png' },
 };
 export default function Layout({ children }: { children: React.ReactNode }) {

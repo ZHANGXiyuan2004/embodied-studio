@@ -1,153 +1,54 @@
 'use client';
-import { useState } from 'react';
-import {
-  ArrowRight,
-  ArrowUpRight,
-  BookOpen,
-  Boxes,
-  Lightbulb,
-  Plus,
-} from 'lucide-react';
+import { ArrowRight, ArrowUpRight, BookOpen, Boxes } from 'lucide-react';
 import { SplittingText } from './animate-ui/primitives/texts/splitting';
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContents,
-  TabsContent,
-} from './animate-ui/components/animate/tabs';
 import {
   Accordion,
   AccordionItem,
   AccordionTrigger,
   AccordionContent,
 } from './animate-ui/components/radix/accordion';
-import { Community } from './community';
 import { Reveal, FlipLink, useStudioReducedMotion } from './shell';
-import { TransferView } from './demos/transfer';
-import { TimingView } from './demos/async-control';
-import { ContactView } from './demos/contact';
-import { base, projects, submitIdea, notes, type Project } from '@/lib/studio';
+import { ProjectImage } from './project-image';
+import { base, projects, submitIdea, ideasFeed } from '@/lib/studio';
 
-function ProjectCard({ p }: { p: Project }) {
-  return (
-    <a className="project-card" href={base + '/projects/' + p.slug + '/'}>
-      {p.kind === 'demo' && (
-        <div className="card-visual">
-          {p.slug === 'transfer' ? (
-            <TransferView />
-          ) : p.slug === 'async-control' ? (
-            <TimingView />
-          ) : (
-            <ContactView />
-          )}
-        </div>
-      )}
-      <div className="card-copy">
-        <div className="card-meta">
-          {p.kind === 'idea' && <Lightbulb size={14} />} {p.field}
-        </div>
-        <h3>{p.title}</h3>
-        <p>{p.summary}</p>
-        <span className="card-link">
-          {p.kind === 'demo' ? '体验 Demo' : '查看想法'}{' '}
-          <ArrowRight size={15} />
-        </span>
-      </div>
-    </a>
-  );
-}
-const groups = [
-  { value: 'demo', title: '概念 Demo' },
-  { value: 'idea', title: '开放想法' },
-  { value: 'community', title: '社区投稿' },
-];
 function Gallery() {
-  const [tab, setTab] = useState('demo');
-  const reduced = useStudioReducedMotion();
   return (
     <section id="projects" className="section">
       <Reveal>
         <div className="section-head">
           <div>
             <p className="kicker">Project gallery</p>
-            <h2>项目与想法</h2>
+            <h2>项目展示</h2>
           </div>
-          <a className="text-link" href={submitIdea}>
-            <Plus size={15} /> 提交项目
+          <a className="text-link" href={ideasFeed}>
+            浏览社区投稿 <ArrowUpRight size={15} />
           </a>
         </div>
       </Reveal>
-      <Tabs value={tab} onValueChange={setTab}>
-        <TabsList
-          aria-label="项目类型"
-          onKeyDown={(e) => {
-            const index = groups.findIndex((g) => g.value === tab);
-            const next =
-              e.key === 'Home'
-                ? 0
-                : e.key === 'End'
-                  ? groups.length - 1
-                  : e.key === 'ArrowLeft'
-                    ? (index + groups.length - 1) % groups.length
-                    : e.key === 'ArrowRight'
-                      ? (index + 1) % groups.length
-                      : -1;
-            if (next >= 0) {
-              e.preventDefault();
-              setTab(groups[next].value);
-              document.getElementById('tab-' + groups[next].value)?.focus();
-            }
-          }}
-        >
-          {groups.map((g) => (
-            <TabsTrigger
-              key={g.value}
-              id={'tab-' + g.value}
-              value={g.value}
-              aria-controls={'panel-' + g.value}
-              aria-selected={tab === g.value}
-              tabIndex={tab === g.value ? 0 : -1}
-            >
-              {g.title}{' '}
-              {g.value !== 'community' && (
-                <span className="count">
-                  {projects.filter((p) => p.kind === g.value).length}
-                </span>
-              )}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-        <TabsContents transition={reduced ? { duration: 0 } : undefined}>
-          {groups.map((g) => (
-            <TabsContent
-              key={g.value}
-              id={'panel-' + g.value}
-              aria-labelledby={'tab-' + g.value}
-              value={g.value}
-            >
-              {g.value === 'community' ? (
-                <Community active={tab === 'community'} />
-              ) : (
-                <div className="card-grid">
-                  {projects
-                    .filter((p) => p.kind === g.value)
-                    .map((p) => (
-                      <ProjectCard key={p.slug} p={p} />
-                    ))}
-                </div>
-              )}
-            </TabsContent>
-          ))}
-        </TabsContents>
-      </Tabs>
-      <div className="contribute">
-        <p>
-          有想验证的问题，或已经做出了原型？把仓库、Demo 和需要的协作写在一起。
-        </p>
-        <a href={submitIdea}>
-          <Plus size={15} /> 分享想法
-        </a>
+      <div className="card-grid">
+        {projects.map((p) => (
+          <a
+            className="project-card"
+            href={base + '/projects/' + p.slug + '/'}
+            key={p.slug}
+          >
+            <div className="card-visual">
+              <ProjectImage project={p} />
+            </div>
+            <div className="card-copy">
+              <h3>{p.title}</h3>
+              <dl className="project-fields">
+                <dt>项目人员</dt>
+                <dd>{p.members}</dd>
+                <dt>项目内容</dt>
+                <dd>{p.content}</dd>
+              </dl>
+              <span className="card-link">
+                查看项目 <ArrowRight size={15} />
+              </span>
+            </div>
+          </a>
+        ))}
       </div>
     </section>
   );
@@ -175,8 +76,7 @@ export function Home() {
           <Reveal delay={170}>
             <p className="hero-lead">把具身智能的想法做成原型。</p>
             <p className="hero-desc">
-              在这里分享研究想法、体验交互
-              Demo，找到愿意一起做实验的同学与企业伙伴。
+              工作室展示样站。浏览项目、成员与器材的示例版式，或分享一个想法。
             </p>
             <div className="hero-actions">
               <FlipLink href="#projects" back="进入项目库">
@@ -217,9 +117,9 @@ export function Home() {
             <Boxes size={32} strokeWidth={1.2} />
           </div>
           <div className="strip-body">
-            <p>查看机械臂、深度相机和制作工具的状态，登记借用、归还与维修。</p>
+            <p>查看示例器材，试用借还和状态筛选。</p>
             <a className="outline" href={base + '/equipment/'}>
-              进入器材台账 <ArrowRight size={15} />
+              打开演示台账 <ArrowRight size={15} />
             </a>
           </div>
         </Reveal>
@@ -235,25 +135,42 @@ export function Home() {
           </div>
         </Reveal>
         <Accordion type="single" collapsible>
-          {notes.map((n) => (
-            <AccordionItem value={n.id} key={n.id}>
-              <AccordionTrigger className="note-trigger">
-                <span>
-                  <small>{n.topic}</small>
-                  {n.title}
-                </span>
-              </AccordionTrigger>
-              <AccordionContent
-                transition={reduced ? { duration: 0 } : undefined}
-              >
-                <p className="note-body">{n.text}</p>
-                <a href={n.href} className="text-link note-source">
-                  {n.link} <ArrowUpRight size={14} />
-                </a>
-              </AccordionContent>
-            </AccordionItem>
-          ))}
+          <AccordionItem value="sample">
+            <AccordionTrigger className="note-trigger">笔记一</AccordionTrigger>
+            <AccordionContent
+              transition={reduced ? { duration: 0 } : undefined}
+            >
+              <p className="note-body">学习主题、实验记录和参考资料待填写。</p>
+            </AccordionContent>
+          </AccordionItem>
         </Accordion>
+      </section>
+      <section id="partners" className="section">
+        <Reveal>
+          <div className="section-head">
+            <div>
+              <p className="kicker">Partners</p>
+              <h2>合作伙伴</h2>
+            </div>
+          </div>
+          <ul className="people-grid">
+            <li>智源机器人</li>
+            <li className="open-slot">合作伙伴待补充</li>
+          </ul>
+        </Reveal>
+      </section>
+      <section id="mentors" className="section">
+        <Reveal>
+          <div className="section-head">
+            <div>
+              <p className="kicker">Faculty advisors</p>
+              <h2>指导教师</h2>
+            </div>
+          </div>
+          <div className="people-grid">
+            <div className="open-slot">教师姓名待填写</div>
+          </div>
+        </Reveal>
       </section>
     </main>
   );

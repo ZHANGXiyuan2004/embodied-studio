@@ -1,5 +1,10 @@
 'use client';
-import { useEffect, useState, useSyncExternalStore, type ReactNode } from 'react';
+import {
+  useEffect,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+} from 'react';
 import { MotionConfig } from 'motion/react';
 import { Asterisk, ArrowUpRight, Github, Menu, X } from 'lucide-react';
 import { Fade } from './animate-ui/primitives/effects/fade';
@@ -80,9 +85,11 @@ export function FlipLink({
   );
 }
 const nav = [
-  ['projects', '项目与想法'],
+  ['projects', '项目展示'],
   ['equipment', '器材管理'],
   ['notes', '学习笔记'],
+  ['partners', '合作伙伴'],
+  ['mentors', '指导教师'],
 ];
 export function Shell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false),

@@ -1,12 +1,11 @@
 import { notFound } from 'next/navigation';
-import { ArrowLeft, ArrowUpRight, Github } from 'lucide-react';
-import { base, github, projects, collaborate } from '@/lib/studio';
-import { TransferDemo } from '@/components/demos/transfer';
-import { TimingDemo } from '@/components/demos/async-control';
-import { ContactDemo } from '@/components/demos/contact';
+import { ArrowLeft, ArrowUpRight } from 'lucide-react';
+import { base, projects, collaborate } from '@/lib/studio';
+import { ProjectImage } from '@/components/project-image';
+
 export const dynamicParams = false;
 export function generateStaticParams() {
-  return projects.map((p) => ({ slug: p.slug }));
+  return projects.map(({ slug }) => ({ slug }));
 }
 type Props = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Props) {
@@ -21,42 +20,26 @@ export default async function ProjectPage({ params }: Props) {
     <main id="main" className="wrap inner-page project-page">
       <a className="back" href={base + '/#projects'}>
         <ArrowLeft size={15} />
-        项目与想法
+        返回项目展示
       </a>
       <div className="detail-heading">
-        <p className="kicker">{p.en}</p>
+        <p className="kicker">Project demo</p>
         <h1>{p.title}</h1>
-        <p>{p.summary}</p>
       </div>
-      {p.kind === 'demo' && (
-        <>
-          <div className="instrument-title">
-            <h2>交互原型</h2>
-            <span>浏览器概念演示 · 教学模型</span>
-          </div>
-          {slug === 'transfer' ? (
-            <TransferDemo />
-          ) : slug === 'async-control' ? (
-            <TimingDemo />
-          ) : (
-            <ContactDemo />
-          )}
-        </>
-      )}
-      <section className="next-step">
-        <h2>一起推进</h2>
-        <p>{p.next}</p>
-        <div className="actions">
-          <a className="solid" href={collaborate(p.title)}>
-            参与项目 <ArrowUpRight size={15} />
+      <div className="project-detail-grid">
+        <ProjectImage project={p} />
+        <div>
+          <dl className="project-fields">
+            <dt>项目人员</dt>
+            <dd>{p.members}</dd>
+            <dt>项目内容</dt>
+            <dd>{p.content}</dd>
+          </dl>
+          <a className="text-link" href={collaborate(p.title)}>
+            交流想法 <ArrowUpRight size={14} />
           </a>
-          {p.source && (
-            <a className="outline" href={github + '/blob/main/' + p.source}>
-              <Github size={15} /> Demo 源码
-            </a>
-          )}
         </div>
-      </section>
+      </div>
     </main>
   );
 }

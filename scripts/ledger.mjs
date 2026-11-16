@@ -1,4 +1,4 @@
-// Atomically update the canonical ledger only after a maintainer approves a request.
+// Apply a single operation to a copy of the demo ledger.
 const transitions = {
   盘点入库: { from: ['待盘点'], to: '可借' },
   借用: { from: ['可借'], to: '借出' },
@@ -7,32 +7,15 @@ const transitions = {
   维修完成: { from: ['维修中'], to: '可借' },
 };
 
-export function readFields(body) {
-  return Object.fromEntries(
-    [
-      ...body
-        .replaceAll('\r', '')
-        .matchAll(/^### ([^\n]+)\n+([\s\S]*?)(?=^### |(?![\s\S]))/gm),
-    ].map(([, key, value]) => [
-      key.trim(),
-      value.trim() === '_No response_' ? '' : value.trim(),
-    ]),
-  );
-}
-
-export function applyRequest(current, issue, date) {
-  if (current.history.some((entry) => entry.issue === issue.number))
-    return current;
-  const fields = readFields(issue.body ?? '');
-  const action = fields['动作'],
-    id = fields['器材编号'];
+export function applyOperation(current, operation, date) {
+  const { action, id, revision, name, due, actor, number } = operation;
+  if (current.history.some((entry) => entry.issue === number)) return current;
   if (!/^[A-Z0-9][A-Z0-9-]{1,23}$/.test(id ?? ''))
     throw Error('器材编号无效。');
   const ledger = structuredClone(current);
   const asset = ledger.assets.find((a) => a.id === id);
   if (action === '新增器材') {
     if (asset) throw Error('该编号已经登记。');
-    const name = fields['新器材名称'];
     if (!name || name.length > 80 || name.includes('\n'))
       throw Error('请填写 80 字以内的器材名称。');
     ledger.assets.push({
@@ -44,7 +27,7 @@ export function applyRequest(current, issue, date) {
     });
   } else {
     if (!asset) throw Error('没有找到该器材。');
-    if (fields['台账版本'] !== String(asset.revision))
+    if (revision !== asset.revision)
       throw Error('器材状态已变更，请刷新台账后重新申请。');
     if (
       !Object.hasOwn(transitions, action) ||
@@ -52,7 +35,6 @@ export function applyRequest(current, issue, date) {
     )
       throw Error('当前状态无法执行该动作。');
     if (action === '借用') {
-      const due = fields['预计归还日期'];
       const valid = /^\d{4}-\d{2}-\d{2}$/.test(due);
       const parsed = valid ? new Date(due + 'T00:00:00Z') : null;
       const today = new Date(new Date(date).getTime() + 8 * 3600 * 1000)
@@ -65,7 +47,7 @@ export function applyRequest(current, issue, date) {
         due < today
       )
         throw Error('预计归还日期无效或已经过去。');
-      asset.borrower = issue.user.login;
+      asset.borrower = actor;
       asset.due = due;
     }
     if (action === '归还') {
@@ -76,11 +58,11 @@ export function applyRequest(current, issue, date) {
     asset.revision++;
   }
   ledger.history.push({
-    issue: issue.number,
+    issue: number,
     date,
     asset: id,
     action,
-    actor: issue.user.login,
+    actor: actor,
   });
   return ledger;
 }
