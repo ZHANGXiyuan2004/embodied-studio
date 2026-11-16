@@ -1,6 +1,6 @@
 'use client';
-import { useEffect, useState, type ReactNode } from 'react';
-import { MotionConfig, useReducedMotion } from 'motion/react';
+import { useEffect, useState, useSyncExternalStore, type ReactNode } from 'react';
+import { MotionConfig } from 'motion/react';
 import { Asterisk, ArrowUpRight, Github, Menu, X } from 'lucide-react';
 import { Fade } from './animate-ui/primitives/effects/fade';
 import {
@@ -9,6 +9,20 @@ import {
   FlipButtonBack,
 } from './animate-ui/components/buttons/flip';
 import { base, github } from '@/lib/studio';
+
+const motionQuery = '(prefers-reduced-motion: reduce)';
+function subscribeToMotion(notify: () => void) {
+  const preference = window.matchMedia(motionQuery);
+  preference.addEventListener('change', notify);
+  return () => preference.removeEventListener('change', notify);
+}
+export function useStudioReducedMotion() {
+  return useSyncExternalStore(
+    subscribeToMotion,
+    () => window.matchMedia(motionQuery).matches,
+    () => false,
+  );
+}
 
 export function Reveal({
   children,
@@ -19,7 +33,7 @@ export function Reveal({
   delay?: number;
   className?: string;
 }) {
-  const reduced = useReducedMotion();
+  const reduced = useStudioReducedMotion();
   return (
     <Fade
       inView
@@ -42,7 +56,7 @@ export function FlipLink({
   children: string;
   back: string;
 }) {
-  const reduced = useReducedMotion();
+  const reduced = useStudioReducedMotion();
   if (reduced)
     return (
       <a href={href} className="solid">

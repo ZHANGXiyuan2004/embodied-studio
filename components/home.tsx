@@ -1,6 +1,5 @@
 'use client';
 import { useState } from 'react';
-import { useReducedMotion } from 'motion/react';
 import {
   ArrowRight,
   ArrowUpRight,
@@ -24,7 +23,7 @@ import {
   AccordionContent,
 } from './animate-ui/components/radix/accordion';
 import { Community } from './community';
-import { Reveal, FlipLink } from './shell';
+import { Reveal, FlipLink, useStudioReducedMotion } from './shell';
 import { TransferView } from './demos/transfer';
 import { TimingView } from './demos/async-control';
 import { ContactView } from './demos/contact';
@@ -65,7 +64,7 @@ const groups = [
 ];
 function Gallery() {
   const [tab, setTab] = useState('demo');
-  const reduced = useReducedMotion();
+  const reduced = useStudioReducedMotion();
   return (
     <section id="projects" className="section">
       <Reveal>
@@ -154,7 +153,7 @@ function Gallery() {
   );
 }
 export function Home() {
-  const reduced = useReducedMotion();
+  const reduced = useStudioReducedMotion();
   return (
     <main className="wrap" id="main">
       <section className="hero" id="studio">
