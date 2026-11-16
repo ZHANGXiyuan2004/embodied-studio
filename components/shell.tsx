@@ -166,7 +166,8 @@ export function Shell({ children }: { children: ReactNode }) {
       </header>
       {children}
       <footer className="footer wrap">
-        <span>叉社具身工作室</span>
+        <span>© 2026 叉社具身工作室</span>
+        <a href={base + '/license/'}>许可与署名</a>
         <a href={github}>
           GitHub 仓库 <ArrowUpRight size={13} />
         </a>

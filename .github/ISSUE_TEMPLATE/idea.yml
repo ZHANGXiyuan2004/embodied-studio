@@ -3,6 +3,10 @@ description: 让同学和企业了解问题、原型与下一步需要的合作�
 title: "[想法] "
 labels: [idea]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        投稿后，工作室主页会展示你的 GitHub 账号、标题、问题摘要和项目链接。请填写你有权公开展示的内容。项目沿用作者的许可，企业可在本条 Issue 联系作者商谈合作。
   - type: textarea
     id: problem
     attributes:
@@ -19,3 +23,8 @@ body:
     id: help
     attributes: {label: 下一步希望谁一起做, description: "可以写一个具体任务、需要的设备或验证场景。"}
     validations: {required: true}
+  - type: input
+    id: reuse
+    attributes:
+      label: 项目复用条款（可选）
+      placeholder: "例如：仓库 LICENSE 链接，或「请联系作者授权」"

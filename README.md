@@ -32,6 +32,14 @@ npm run dev
 
 ## 构建与发布
 
-基于[参考主页](https://github.com/ZHANGXiyuan2004/ZHANGXiyuan2004.github.io)的 Next.js 16 App Router、React 19、TypeScript、Tailwind CSS 4、Motion 和 [Animate UI 组件](docs/ANIMATE_UI.md)。推送到 main 后，GitHub Actions 安装锁文件依赖，运行台账测试，静态导出到 `out/`，再发布 GitHub Pages。站点子路径由 `NEXT_PUBLIC_BASE_PATH` 注入。仓库的 Pages 发布源为 GitHub Actions。
+基于[参考主页](https://github.com/ZHANGXiyuan2004/ZHANGXiyuan2004.github.io)的 Next.js 16 App Router、React 19、TypeScript、Tailwind CSS 4、Motion 和 [Animate UI 组件](docs/ANIMATE_UI.md)。推送到 main 后，GitHub Actions 安装锁文件依赖，运行台账测试，静态导出到 `out/`，再发布 GitHub Pages。构建从 Pages 配置读取实际发布路径并注入 `NEXT_PUBLIC_BASE_PATH`。绑定工作室域名后从域名根路径提供服务。仓库的 Pages 发布源为 GitHub Actions。
 
 首页工作台图片位于 `public/workbench.webp`，由内置图像生成工具制作。画面设定为灰色光学平台上的钴蓝色桌面机械臂与朱红色方块，采用自然侧光和工业设计产品摄影构图。
+
+## 许可与署名
+
+工作室对享有权利的原创站点代码、交互 Demo 和文字保留权利。欢迎分享演示链接。企业希望把 Demo 集成进产品时，请在对应项目页选择「参与项目」，说明用途和分发方式，与权利人另行约定。[完整权利声明](LICENSE)
+
+社区投稿按作者在原项目中给出的许可使用。投稿仅供本站展示公开摘要和链接。工作室 AI 生成的机械臂配图用于场景示意，复用图片或工作室标识请单独联系。引用的论文、数据集与外部项目请查阅原发布方条款。
+
+Animate UI 保留 Elliot Sutton 的 MIT + Commons Clause 条款。Lucide 图标沿用发行包的 ISC 声明，其中源自 Feather 的图标适用 MIT。参考主页的构建配置和工具保留来源说明。更新运行依赖或复制组件时，请同步核对随网页分发的版权及许可全文。[第三方许可汇编](public/third-party-notices.txt) · [Animate UI 来源](docs/ANIMATE_UI.md)
