@@ -1,0 +1,27 @@
+name: 器材登记
+description: 维护者核对实物并批准后，变更进入共享台账。
+title: "[器材] "
+body:
+  - type: input
+    id: action
+    attributes:
+      label: 动作
+      description: "从器材台账带入。可选盘点入库、借用、归还、送修、维修完成、新增器材。"
+    validations: {required: true}
+  - type: input
+    id: asset
+    attributes: {label: 器材编号, placeholder: ARM-01}
+    validations: {required: true}
+  - type: input
+    id: revision
+    attributes: {label: 台账版本, description: 从器材页面带入。新增填 0。}
+    validations: {required: true}
+  - type: input
+    id: name
+    attributes: {label: 新器材名称, description: 新增器材时填写。}
+  - type: input
+    id: due
+    attributes: {label: 预计归还日期, description: 借用时填写 YYYY-MM-DD。}
+  - type: textarea
+    id: details
+    attributes: {label: 说明, description: "可简述用途、器材情况。记录公开，请勿填写电话或门牌。"}

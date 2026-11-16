@@ -1,0 +1,13 @@
+name: 参与项目
+description: 对接实验、设备或应用场景。
+title: "[合作] "
+labels: [collaboration]
+body:
+  - type: input
+    id: project
+    attributes: {label: 项目}
+    validations: {required: true}
+  - type: textarea
+    id: contribution
+    attributes: {label: 想一起推进的事, description: "说明想验证什么，以及你可以带来的场景或资源。"}
+    validations: {required: true}

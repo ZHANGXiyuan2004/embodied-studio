@@ -1,0 +1,8 @@
+{
+  "assets": [
+    {"id":"ARM-01","name":"SO-101 主从机械臂","description":"主从臂套件，含腕部相机、俯拍相机与支架。","status":"待盘点","revision":0},
+    {"id":"CAM-01","name":"RealSense L515","description":"深度相机。","status":"待盘点","revision":0},
+    {"id":"FAB-01","name":"3D 打印机","description":"型号与配件待补充。","status":"待盘点","revision":0}
+  ],
+  "history": []
+}

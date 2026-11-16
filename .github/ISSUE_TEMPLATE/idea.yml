@@ -1,0 +1,21 @@
+name: 分享想法或 Demo
+description: 让同学和企业了解问题、原型与下一步需要的合作。
+title: "[想法] "
+labels: [idea]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 想解决什么问题
+      description: 写出使用者、具体场景和成功条件。
+    validations: {required: true}
+  - type: input
+    id: repo
+    attributes: {label: GitHub 仓库, placeholder: "https://github.com/…"}
+  - type: input
+    id: demo
+    attributes: {label: 可体验的 Demo, placeholder: "https://…"}
+  - type: textarea
+    id: help
+    attributes: {label: 下一步希望谁一起做, description: "可以写一个具体任务、需要的设备或验证场景。"}
+    validations: {required: true}
