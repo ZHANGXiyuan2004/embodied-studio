@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { applyOperation } from '../scripts/ledger.mjs';
 const seed = JSON.parse(
-  readFileSync(new URL('../public/inventory.json', import.meta.url)),
+  readFileSync(new URL('../lib/inventory-sample.json', import.meta.url)),
 );
 const ledger = {
   assets: [{ ...seed.assets[0], id: 'DEMO-01', revision: 0, status: '待盘点' }],

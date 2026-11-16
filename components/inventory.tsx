@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { ArrowLeft, Plus, RefreshCw } from 'lucide-react';
-import snapshot from '@/public/inventory.json';
+import snapshot from '@/lib/inventory-sample.json';
 import { base } from '@/lib/studio';
 import { applyOperation } from '@/scripts/ledger.mjs';
 import { actions, type Action, type Asset, type Ledger } from '@/lib/inventory';

@@ -86,7 +86,6 @@ export function FlipLink({
 }
 const nav = [
   ['projects', '项目展示'],
-  ['equipment', '器材管理'],
   ['notes', '学习笔记'],
   ['partners', '合作伙伴'],
   ['mentors', '指导教师'],
@@ -103,7 +102,6 @@ export function Shell({ children }: { children: ReactNode }) {
       { rootMargin: '-10% 0px -55% 0px' },
     );
     sections.forEach((s) => observer.observe(s));
-    if (location.pathname.includes('/equipment/')) setActive('equipment');
     if (location.pathname.includes('/projects/')) setActive('projects');
     const escape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setOpen(false);

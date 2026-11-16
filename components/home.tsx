@@ -1,5 +1,5 @@
 'use client';
-import { ArrowRight, ArrowUpRight, BookOpen, Boxes } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, BookOpen } from 'lucide-react';
 import { SplittingText } from './animate-ui/primitives/texts/splitting';
 import {
   Accordion,
@@ -76,7 +76,7 @@ export function Home() {
           <Reveal delay={170}>
             <p className="hero-lead">把具身智能的想法做成原型。</p>
             <p className="hero-desc">
-              工作室展示样站。浏览项目、成员与器材的示例版式，或分享一个想法。
+              工作室展示样站。浏览项目与成员的示例版式，或分享一个想法。
             </p>
             <div className="hero-actions">
               <FlipLink href="#projects" back="进入项目库">
@@ -107,23 +107,6 @@ export function Home() {
         </Reveal>
       </section>
       <Gallery />
-      <section id="equipment" className="section equipment-strip">
-        <Reveal>
-          <div className="section-head">
-            <div>
-              <p className="kicker">Equipment</p>
-              <h2>器材管理</h2>
-            </div>
-            <Boxes size={32} strokeWidth={1.2} />
-          </div>
-          <div className="strip-body">
-            <p>查看示例器材，试用借还和状态筛选。</p>
-            <a className="outline" href={base + '/equipment/'}>
-              打开演示台账 <ArrowRight size={15} />
-            </a>
-          </div>
-        </Reveal>
-      </section>
       <section id="notes" className="section">
         <Reveal>
           <div className="section-head">

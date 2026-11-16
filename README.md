@@ -1,8 +1,8 @@
 # 叉社具身工作室 · 演示站
 
-[工作室演示站](https://chashe-embodied-studio.pages.dev/) · [器材演示台账](https://chashe-embodied-studio.pages.dev/equipment/)
+[工作室演示站](https://chashe-embodied-studio.pages.dev/)
 
-项目、成员、指导教师及器材采用占位资料。合作伙伴栏展示智源机器人，并预留其他伙伴位置。首页机械臂配图为 AI 场景示意。
+项目、成员和指导教师采用占位资料。合作伙伴栏展示智源机器人，并预留其他伙伴位置。首页机械臂配图为 AI 场景示意。
 
 ## 本地预览
 
@@ -19,7 +19,6 @@ npm run dev
 
 - 在 `lib/studio.ts` 编辑项目标题、项目人员和项目内容。将图片放入 `public/`，在项目条目增加 `image: { file: '/文件名.webp', alt: '画面描述' }`，列表和详情页会同时使用该图。
 - 在 `components/home.tsx` 编辑合作伙伴、指导教师和学习笔记。投稿入口通向仓库的 GitHub Issues。
-- 在 `public/inventory.json` 更新演示器材。借还、维修和新增操作在当前页面内试用，刷新或重置即可恢复示例。
 
 ## Cloudflare Pages
 
