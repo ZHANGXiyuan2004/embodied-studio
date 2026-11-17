@@ -14,6 +14,7 @@ import {
   FlipButtonBack,
 } from './animate-ui/components/buttons/flip';
 import { base, github } from '@/lib/studio';
+import { controlTransition, revealTransition } from '@/lib/motion';
 
 const motionQuery = '(prefers-reduced-motion: reduce)';
 function subscribeToMotion(notify: () => void) {
@@ -45,7 +46,7 @@ export function Reveal({
       inViewOnce
       initialOpacity={reduced ? 1 : 0}
       delay={reduced ? 0 : delay}
-      transition={{ duration: reduced ? 0 : 0.65, ease: [0.22, 1, 0.36, 1] }}
+      transition={reduced ? { duration: 0 } : revealTransition}
       className={'reveal ' + className}
     >
       {children}
@@ -62,23 +63,21 @@ export function FlipLink({
   back: string;
 }) {
   const reduced = useStudioReducedMotion();
-  if (reduced)
-    return (
-      <a href={href} className="solid">
-        {children}
-        <ArrowUpRight size={15} />
-      </a>
-    );
   return (
-    <FlipButton asChild whileFocus="hover" aria-label={children}>
+    <FlipButton asChild whileFocus="hover" tapScale={1} aria-label={children}>
       <a href={href} className="flip-link">
-        <FlipButtonFront>
+        <FlipButtonFront
+          transition={reduced ? { duration: 0 } : controlTransition}
+        >
           {children}
-          <ArrowUpRight size={15} />
+          <ArrowUpRight size={16} />
         </FlipButtonFront>
-        <FlipButtonBack aria-hidden="true">
+        <FlipButtonBack
+          aria-hidden="true"
+          transition={reduced ? { duration: 0 } : controlTransition}
+        >
           {back}
-          <ArrowUpRight size={15} />
+          <ArrowUpRight size={16} />
         </FlipButtonBack>
       </a>
     </FlipButton>

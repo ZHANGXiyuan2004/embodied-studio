@@ -2,7 +2,7 @@
 
 [工作室演示站](https://chashe-embodied-studio.pages.dev/)
 
-项目、成员和指导教师采用占位资料。合作伙伴栏展示智源机器人，并预留其他伙伴位置。首页机械臂配图为 AI 场景示意。
+项目、成员和指导教师采用占位资料。合作伙伴栏展示智源机器人，并预留其他伙伴位置。首页机械臂是可用鼠标、触屏和方向键操作的原创抓放演示。
 
 ## 本地预览
 
@@ -15,10 +15,14 @@ npm run dev
 
 开发预览地址为 <http://127.0.0.1:3000>。运行 `npm test` 校验器材状态流转，`npm run build` 生成静态网站到 `out/`。
 
+开发服务器启动后，运行 `npx playwright test tests/flip-link.spec.ts` 可复查首页按钮的尺寸。首次使用可运行 `npx playwright install chromium` 安装测试浏览器。
+
 ## 更新示例
 
 - 在 `lib/studio.ts` 编辑项目标题、项目人员和项目内容。将图片放入 `public/`，在项目条目增加 `image: { file: '/文件名.webp', alt: '画面描述' }`，列表和详情页会同时使用该图。
-- 在 `components/home.tsx` 编辑合作伙伴、指导教师和学习笔记。投稿入口通向仓库的 GitHub Issues。
+- 在同一文件的 `notes` 添加 `{ id, title, body }`，每篇笔记自动成为一个可展开的条目。
+- 在 `partners` 或 `mentors` 添加 `{ id, name }`。预留位可设置 `placeholder: true`。同一列表内的 `id` 和项目 `slug` 分别保持唯一且稳定，可直接调整条目顺序。
+- 重新构建后，项目会生成各自的详情页。项目卡片、章节布局和翻页动效都共用模板。投稿入口通向仓库的 GitHub Issues。
 
 ## Cloudflare Pages
 

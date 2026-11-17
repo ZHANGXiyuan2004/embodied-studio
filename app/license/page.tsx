@@ -19,8 +19,7 @@ export default function LicensePage() {
         <p>
           工作室及相应贡献者对原创代码、交互 Demo 和原创文字保留权利。企业如需将
           Demo
-          集成到产品、改编发布或商业使用，请说明项目、用途和分发方式，与权利人另行约定。复用工作室标识或首页
-          AI 生成的机械臂配图，也请先联系工作室。
+          集成到产品、改编发布或商业使用，请说明项目、用途和分发方式，与权利人另行约定。复用工作室标识或首页的机械臂交互画面，也请先联系工作室。
         </p>
         <div className="actions">
           <a className="solid" href={collaborate('作品复用授权')}>

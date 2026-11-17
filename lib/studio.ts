@@ -43,3 +43,27 @@ export const projects: Project[] = [
     content: '原型演示与阶段成果待填写。',
   },
 ];
+
+export type Note = { id: string; title: string; body: string };
+export type DirectoryEntry = {
+  id: string;
+  name: string;
+  placeholder?: boolean;
+};
+
+export const notes: Note[] = [
+  {
+    id: 'note-1',
+    title: '笔记一',
+    body: '学习主题、实验记录和参考资料待填写。',
+  },
+];
+
+export const partners: DirectoryEntry[] = [
+  { id: 'zhiyuan', name: '智源机器人' },
+  { id: 'partner-slot', name: '合作伙伴待补充', placeholder: true },
+];
+
+export const mentors: DirectoryEntry[] = [
+  { id: 'mentor-slot', name: '教师姓名待填写', placeholder: true },
+];
