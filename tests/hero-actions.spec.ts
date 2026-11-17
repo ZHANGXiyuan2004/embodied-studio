@@ -124,7 +124,7 @@ test('简介展开时标题和三个入口联动上移，正文向下展开并�
   }
 });
 
-test('三家合作伙伴的标识均已加载，图文链接指向官方页面', async ({ page }) => {
+test('合作伙伴的标识均已加载，链接指向相应机构或报道', async ({ page }) => {
   await page.goto(url);
   const partners = page.locator('#partners');
   const mentors = page.locator('#mentors');
@@ -137,6 +137,9 @@ test('三家合作伙伴的标识均已加载，图文链接指向官方页面',
     ['智元机器人', 'https://www.agibot.com/'],
     ['阿里云', 'https://www.aliyun.com/'],
     ['Xbotics 社区', 'https://github.com/Xbotics-Embodied-AI-club'],
+    ['舜行奇点', 'https://ori.hangzhou.com.cn/ornews/content/2026-09/30/content_9325259.htm'],
+    ['电子科技大学立人班', 'https://news.uestc.edu.cn/info/1004/37771.htm'],
+    ['电子科技大学英才科协', 'https://news.uestc.edu.cn/info/1004/2696.htm'],
   ]) {
     const link = partners.getByRole('link', { name });
     await expect(link).toHaveAttribute('href', href);

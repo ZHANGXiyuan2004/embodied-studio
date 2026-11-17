@@ -10,6 +10,15 @@ https://www.agibot.com/public/static/index/en/images/logo2.png
 https://help.aliyun.com/
 Xbotics 社区 — 社区具身智能学习指南标识（裁去外围留白）
 https://github.com/Xbotics-Embodied-AI-club/Xbotics-Embodied-Guide/blob/db3c3d7c982085281a36e68e8cacc7a1fc2eb95f/files/images/Xbotics.png
+舜行奇点 — 杭州舜行奇点科技有限公司提交的图形商标申请（申请号 94036031），图样引自阿里云商标查询。条目链接到杭州网记者采写的创始人郭继舜现场发言报道。
+https://tm.aliyun.com/detail/861b_94036031_42
+https://ori.hangzhou.com.cn/ornews/content/2026-09/30/content_9325259.htm
+电子科技大学立人班 — “立德树人”图文标识，截自成电新闻网刊发的《致电子科技大学立人班全体师生的一封信》信头。
+https://news.uestc.edu.cn/info/1004/37771.htm
+https://news.uestc.edu.cn/__local/B/C4/E5/B46CB124A8F81B384AC96C1BA86_622E991D_12F7AC.png
+电子科技大学英才科协 — 使用所属英才实验学院院徽，截自学院官方介绍册封面。校方介绍英才科协的报道中也可见该院徽。
+https://www.yingcai.uestc.edu.cn/__local/7/12/E6/07AE5DE5D7B9217DD23836E26DD_76B90995_1BE46A.pdf
+https://news.uestc.edu.cn/info/1004/2696.htm
 
 ====================================================================
 @radix-ui/primitive 1.1.7 — LICENSE

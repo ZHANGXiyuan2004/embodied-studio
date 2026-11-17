@@ -56,7 +56,7 @@ export type StudioOutput = {
 export type DirectoryEntry = {
   id: string;
   name: string;
-  link?: { href: string; logo: string };
+  link?: { href: string; logo: string; title?: string };
 };
 
 export const outputs: StudioOutput[] = [
@@ -115,6 +115,33 @@ export const partners: DirectoryEntry[] = [
     link: {
       href: 'https://github.com/Xbotics-Embodied-AI-club',
       logo: '/partners/xbotics.png',
+    },
+  },
+  {
+    id: 'synxion',
+    name: '舜行奇点',
+    link: {
+      href: 'https://ori.hangzhou.com.cn/ornews/content/2026-09/30/content_9325259.htm',
+      logo: '/partners/synxion.webp',
+      title: '杭州网关于舜行奇点创始人郭继舜发言的报道',
+    },
+  },
+  {
+    id: 'uestc-liren',
+    name: '电子科技大学立人班',
+    link: {
+      href: 'https://news.uestc.edu.cn/info/1004/37771.htm',
+      logo: '/partners/liren.png',
+      title: '电子科技大学栋梁工程·立人班',
+    },
+  },
+  {
+    id: 'uestc-yingcai',
+    name: '电子科技大学英才科协',
+    link: {
+      href: 'https://news.uestc.edu.cn/info/1004/2696.htm',
+      logo: '/partners/yingcai.png',
+      title: '电子科技大学对英才科协的介绍，配图为英才实验学院院徽',
     },
   },
 ];

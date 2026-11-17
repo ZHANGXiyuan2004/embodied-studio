@@ -4,7 +4,9 @@
 
 ## 我们在做什么
 
-核心团队已组建，项目由同学自主选题。我们已与智元机器人（AgiBot）达成初步合作意向，正在商谈真机支持和每一至两周一次的项目交流。当前主要合作伙伴还有阿里云和 Xbotics 社区。[合作伙伴](https://xingzhi-embodied-studio.pages.dev/#partners)
+核心团队已组建，项目由同学自主选题。我们已与智元机器人（AgiBot）达成初步合作意向，正在商谈真机支持和每一至两周一次的项目交流。工作室的企业和社区伙伴还包括阿里云、Xbotics 社区，以及郭继舜创办的舜行奇点。[合作伙伴](https://xingzhi-embodied-studio.pages.dev/#partners) · [杭州网关于郭继舜发言的报道](https://ori.hangzhou.com.cn/ornews/content/2026-09/30/content_9325259.htm)
+
+校内合作伙伴包括电子科技大学立人班和电子科技大学英才科协。立人班开展学生领导力培养，工作室则依托英才科协具身部开展日常科创活动。[栋梁工程·立人班](https://news.uestc.edu.cn/info/1004/37771.htm) · [英才科协](https://news.uestc.edu.cn/info/1004/2696.htm)
 
 我们希望分两步培养成员、推进项目。
 

@@ -117,7 +117,7 @@ function Directory({
           {entries.map((entry) => (
             <li key={entry.id}>
               {entry.link ? (
-                <ActionLink className="lift-action partner-link" href={entry.link.href}>
+                <ActionLink className="lift-action partner-link" href={entry.link.href} title={entry.link.title}>
                   <img
                     src={base + entry.link.logo}
                     alt=""

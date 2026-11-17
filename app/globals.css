@@ -1287,6 +1287,19 @@ dialog .actions {
   font-size: 18px;
   line-height: 1.6;
 }
+#partners .people-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+@media (max-width: 700px) {
+  #partners .people-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 360px) {
+  #partners .people-grid {
+    grid-template-columns: 1fr;
+  }
+}
 .partner-link {
   display: inline-flex;
   flex-direction: column;
