@@ -1,400 +1,451 @@
-// Orthographic workshop illustration. Coordinates use the same drawing space as the controller.
+// Orthographic product illustration. The controller supplies the screen-space wrist and workpiece.
 export type Point = { x: number; y: number };
-export const stage = { width: 600, height: 366 };
-export const rest: Point = { x: 429, y: 159 };
+export const stage = { x: 32, y: 6, width: 524, height: 322 };
+export const rest: Point = { x: 389, y: 174 };
 export const stations = [367, 453];
 export const cubeFloor = 279;
 export const graspOffset = 46;
-const shoulder = { x: 147, y: 211 };
-const humerus = 149;
-const forearm = 183;
-type Context = CanvasRenderingContext2D;
-type Vertex = [number, number];
 
-function polygon(
-  c: Context,
-  points: Vertex[],
-  fill: string | CanvasGradient,
-  stroke?: string,
-) {
+type Context = CanvasRenderingContext2D;
+type Plan = { x: number; z: number };
+type Finish = {
+  top: string;
+  rim: string;
+  wall: [string, string, string, string];
+};
+const ceramic: Finish = {
+  top: '#f6f6ef',
+  rim: '#bfc2ba',
+  wall: ['#b8bdb8', '#f1f3ed', '#d3d8d2', '#a1a8a3'],
+};
+const graphite: Finish = {
+  top: '#454a49',
+  rim: '#353a39',
+  wall: ['#292d2e', '#606664', '#414746', '#25292a'],
+};
+const titanium: Finish = {
+  top: '#cdd1ca',
+  rim: '#969c97',
+  wall: ['#777e7a', '#e7e9e2', '#b4bab5', '#707772'],
+};
+const orange: Finish = {
+  top: '#fa9863',
+  rim: '#b85e39',
+  wall: ['#c86d43', '#ffac76', '#e08453', '#ae5836'],
+};
+const tau = Math.PI * 2;
+const tilt = 0.44;
+const ground = 282;
+const base = { x: 150, z: -8 };
+
+function project(p: Plan, height: number): Point {
+  return { x: p.x, y: ground + p.z * tilt - height };
+}
+function path(c: Context, points: Point[]) {
   c.beginPath();
-  points.forEach(([x, y], index) =>
-    index === 0 ? c.moveTo(x, y) : c.lineTo(x, y),
-  );
+  c.moveTo(points[0].x, points[0].y);
+  for (const p of points.slice(1)) c.lineTo(p.x, p.y);
   c.closePath();
+}
+function face(c: Context, points: Point[], fill: string | CanvasGradient) {
+  path(c, points);
   c.fillStyle = fill;
   c.fill();
-  if (stroke) {
-    c.strokeStyle = stroke;
-    c.lineWidth = 1;
-    c.stroke();
-  }
 }
-
 function ellipse(
   c: Context,
   x: number,
   y: number,
   rx: number,
   ry: number,
-  fill: string | CanvasGradient,
+  color: string | CanvasGradient,
 ) {
   c.beginPath();
-  c.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
-  c.fillStyle = fill;
+  c.ellipse(x, y, rx, ry, 0, 0, tau);
+  c.fillStyle = color;
   c.fill();
 }
-
-function line(
+function light(c: Context, x1: number, x2: number, colors: Finish['wall']) {
+  const g = c.createLinearGradient(x1, 0, x2, 0);
+  g.addColorStop(0, colors[0]);
+  g.addColorStop(0.24, colors[1]);
+  g.addColorStop(0.65, colors[2]);
+  g.addColorStop(1, colors[3]);
+  return g;
+}
+// Stacked turned profiles retain a continuous reflection around each bearing and spindle.
+function turned(
+  c: Context,
+  p: Plan,
+  bottom: number,
+  top: number,
+  foot: number,
+  cap: number,
+  finish: Finish,
+) {
+  const a = project(p, bottom),
+    b = project(p, top);
+  c.beginPath();
+  c.moveTo(b.x - cap, b.y);
+  c.ellipse(b.x, b.y, cap, cap * tilt, 0, Math.PI, tau);
+  c.lineTo(a.x + foot, a.y);
+  c.ellipse(a.x, a.y, foot, foot * tilt, 0, 0, Math.PI);
+  c.closePath();
+  c.fillStyle = light(
+    c,
+    p.x - Math.max(foot, cap),
+    p.x + Math.max(foot, cap),
+    finish.wall,
+  );
+  c.fill();
+  ellipse(c, b.x, b.y, cap, cap * tilt, finish.top);
+  c.strokeStyle = finish.rim;
+  c.lineWidth = 0.55;
+  c.stroke();
+}
+// A housing footprint follows its two bearings. The curved walls and lid share the same outline.
+function outline(a: Plan, b: Plan, r1: number, r2: number): Plan[] {
+  const angle = Math.atan2(b.z - a.z, b.x - a.x);
+  const tangent = Math.acos((r1 - r2) / Math.hypot(b.x - a.x, b.z - a.z));
+  const ring: Plan[] = [];
+  function arc(p: Plan, radius: number, start: number, end: number) {
+    for (let i = 0; i <= 24; i++) {
+      const t = angle + start + ((end - start) * i) / 24;
+      ring.push({
+        x: p.x + radius * Math.cos(t),
+        z: p.z + radius * Math.sin(t),
+      });
+    }
+  }
+  arc(b, r2, -tangent, tangent);
+  arc(a, r1, tangent, tau - tangent);
+  return ring;
+}
+function housing(
+  c: Context,
+  ring: Plan[],
+  bottom: number,
+  top: number,
+  finish: Finish,
+) {
+  const lid = ring.map((p) => project(p, top)),
+    floor = ring.map((p) => project(p, bottom));
+  let left = 0,
+    right = 0;
+  for (let i = 1; i < lid.length; i++) {
+    if (lid[i].x < lid[left].x) left = i;
+    if (lid[i].x > lid[right].x) right = i;
+  }
+  // With this winding, the front silhouette runs from right to left.
+  const near: number[] = [right];
+  while (near[near.length - 1] !== left)
+    near.push((near[near.length - 1] + 1) % lid.length);
+  face(
+    c,
+    [
+      ...near.map((i) => lid[i]),
+      ...near
+        .slice()
+        .reverse()
+        .map((i) => floor[i]),
+    ],
+    light(c, lid[left].x, lid[right].x, finish.wall),
+  );
+  c.strokeStyle = finish.rim;
+  c.lineWidth = 0.65;
+  c.stroke();
+  const glaze = c.createLinearGradient(lid[left].x, 0, lid[right].x, 50);
+  glaze.addColorStop(0, finish.top);
+  glaze.addColorStop(0.63, finish.top);
+  glaze.addColorStop(1, finish.wall[2]);
+  face(c, lid, glaze);
+  c.strokeStyle = finish.rim;
+  c.lineWidth = 0.7;
+  c.stroke();
+}
+function housingLayers(
+  c: Context,
+  a: Plan,
+  b: Plan,
+  r1: number,
+  r2: number,
+  h: number,
+  thickness: number,
+) {
+  housing(c, outline(a, b, r1 - 2, r2 - 2), h, h + 3, graphite);
+  housing(c, outline(a, b, r1, r2), h + 3, h + thickness - 2, ceramic);
+  housing(
+    c,
+    outline(a, b, r1 - 1.5, r2 - 1.5),
+    h + thickness - 2,
+    h + thickness,
+    ceramic,
+  );
+}
+function shadow(
   c: Context,
   x: number,
   y: number,
-  x2: number,
-  y2: number,
-  color: string,
-  width = 1,
+  rx: number,
+  ry: number,
+  opacity: number,
 ) {
+  c.save();
+  c.translate(x, y);
+  c.scale(rx, ry);
+  const g = c.createRadialGradient(0, 0, 0, 0, 0, 1);
+  g.addColorStop(0, `rgba(48,49,44,${opacity})`);
+  g.addColorStop(0.52, `rgba(48,49,44,${opacity * 0.37})`);
+  g.addColorStop(1, 'rgba(48,49,44,0)');
+  ellipse(c, 0, 0, 1, 1, g);
+  c.restore();
+}
+function platform(c: Context) {
+  // Rounded mounting plate, layer seam, and feet, all in the same ground plane.
+  const plate: Plan[] = [];
+  const yaw = -0.27;
+  for (const [dx, dz, start] of [
+    [43, 32, 0],
+    [-43, 32, Math.PI / 2],
+    [-43, -32, Math.PI],
+    [43, -32, (3 * Math.PI) / 2],
+  ]) {
+    for (let i = 0; i <= 8; i++) {
+      const t = start + (i * Math.PI) / 16,
+        u = dx + 9 * Math.cos(t),
+        v = dz + 9 * Math.sin(t);
+      plate.push({
+        x: base.x + u * Math.cos(yaw) - v * Math.sin(yaw),
+        z: base.z + u * Math.sin(yaw) + v * Math.cos(yaw),
+      });
+    }
+  }
+  housing(c, plate, 0, 5, graphite);
+  housing(c, plate, 5, 12, titanium);
+  for (const [x, z] of [
+    [-40, -22],
+    [39, -37],
+    [38, 22],
+    [-37, 37],
+  ]) {
+    const hole = project({ x: base.x + x, z: base.z + z }, 12);
+    ellipse(c, hole.x, hole.y, 2.7, 1.3, '#626762');
+  }
+  turned(c, base, 12, 20, 40, 40, graphite);
+  turned(c, base, 20, 25, 40, 37, ceramic);
+  turned(c, base, 25, 74, 37, 31, ceramic);
+  const front = project(base, 43);
+  c.fillStyle = '#535954';
+  c.font = '600 6px ui-monospace, monospace';
+  c.fillText('SCARA', front.x - 12, front.y + 11);
+  turned(c, base, 74, 85, 30.8, 30.8, graphite);
+  turned(c, base, 85, 89, 31, 31, titanium);
+  turned(c, base, 89, 108, 29.5, 29.5, graphite);
+}
+// Flexible service loom from the fixed column to the moving elbow.
+function loom(c: Context, elbow: Plan) {
+  const end = project({ x: elbow.x - 7, z: elbow.z - 5 }, 146);
+  const start = project({ x: base.x - 26, z: base.z - 4 }, 69);
+  c.save();
+  c.lineCap = 'round';
   c.beginPath();
-  c.moveTo(x, y);
-  c.lineTo(x2, y2);
-  c.strokeStyle = color;
-  c.lineWidth = width;
+  c.moveTo(start.x, start.y);
+  c.bezierCurveTo(
+    start.x - 45,
+    start.y - 65,
+    end.x - 40,
+    end.y - 79,
+    end.x,
+    end.y,
+  );
+  c.strokeStyle = '#373c3b';
+  c.lineWidth = 6;
   c.stroke();
+  c.strokeStyle = '#747a74';
+  c.lineWidth = 3.8;
+  c.stroke();
+  c.strokeStyle = '#464c48';
+  c.lineWidth = 4.3;
+  c.setLineDash([1.2, 3.7]);
+  c.stroke();
+  c.restore();
 }
 
-function workshop(c: Context) {
+function vents(c: Context, a: Plan, b: Plan, height: number) {
+  const len = Math.hypot(b.x - a.x, b.z - a.z);
+  const dx = (b.x - a.x) / len,
+    dz = (b.z - a.z) / len;
+  const origin = project(a, height);
   c.save();
-  const fog = c.createRadialGradient(335, 165, 10, 335, 165, 295);
-  fog.addColorStop(0, '#3c565e88');
-  fog.addColorStop(1, '#18282e00');
-  c.fillStyle = fog;
-  c.fillRect(0, 0, stage.width, stage.height);
-  // The floor vanishes into the glass instead of ending at a hard horizon.
-  const floor = c.createLinearGradient(0, 170, 0, 366);
-  floor.addColorStop(0, '#a2c1bb00');
-  floor.addColorStop(0.6, '#a2c1bb31');
-  floor.addColorStop(1, '#a2c1bb08');
-  c.strokeStyle = floor;
-  c.lineWidth = 0.8;
-  c.beginPath();
-  for (let x = -800; x < 900; x += 40) {
-    c.moveTo(x, 169);
-    c.lineTo(x + 348, 366);
-    c.moveTo(x, 169);
-    c.lineTo(x - 348, 366);
+  c.transform(dx, tilt * dz, -dz, tilt * dx, origin.x, origin.y);
+  c.lineCap = 'round';
+  c.lineWidth = 2.2;
+  c.strokeStyle = '#8c938b';
+  for (let i = 0; i < 4; i++) {
+    const u = 34 + i * 5;
+    c.beginPath();
+    c.moveTo(u, -5);
+    c.lineTo(u, 4);
+    c.stroke();
   }
-  c.stroke();
-  c.strokeStyle = '#a2c1bb2c';
-  c.setLineDash([3, 7]);
+  c.restore();
+}
+function detailCap(c: Context, p: Plan, height: number, r: number) {
+  turned(c, p, height, height + 1.5, r, r, titanium);
+  turned(c, p, height + 1.5, height + 2.6, r - 3.3, r - 3.3, ceramic);
+  for (let i = 0; i < 3; i++) {
+    const theta = (i * tau) / 3 + 0.3;
+    const v = project(
+      {
+        x: p.x + (r - 6) * Math.cos(theta),
+        z: p.z + (r - 6) * Math.sin(theta),
+      },
+      height + 2.7,
+    );
+    ellipse(c, v.x, v.y, 1.2, 0.65, '#7c817c');
+  }
+}
+function workpiece(c: Context, p: Point) {
+  const { x, y } = p;
+  face(
+    c,
+    [
+      { x: x - 13, y: y - 6 },
+      { x: x - 3, y: y - 12 },
+      { x: x + 13, y: y - 7 },
+      { x: x + 4, y: y - 1 },
+    ],
+    '#f7a574',
+  );
+  face(
+    c,
+    [
+      { x: x - 13, y: y - 6 },
+      { x: x + 4, y: y - 1 },
+      { x: x + 4, y: y + 12 },
+      { x: x - 13, y: y + 7 },
+    ],
+    '#dc7446',
+  );
+  face(
+    c,
+    [
+      { x: x + 4, y: y - 1 },
+      { x: x + 13, y: y - 7 },
+      { x: x + 13, y: y + 6 },
+      { x: x + 4, y: y + 12 },
+    ],
+    '#ad5432',
+  );
+}
+function floorMarks(c: Context) {
+  c.save();
+  c.lineWidth = 0.9;
+  c.strokeStyle = '#b7bbb0';
+  c.setLineDash([3, 3]);
   c.beginPath();
-  c.ellipse(270, 289, 192, 41, 0, 0, 2 * Math.PI);
+  c.moveTo(stations[0], 292);
+  c.lineTo(stations[1], 292);
   c.stroke();
   c.setLineDash([]);
-  // Registration crosses and the two placement pads stay fixed as the arm moves.
-  for (const [x, y] of [
-    [54, 71],
-    [535, 71],
-    [54, 303],
-    [535, 303],
-  ]) {
-    line(c, x - 4, y, x + 4, y, '#a7c0bd65');
-    line(c, x, y - 4, x, y + 4, '#a7c0bd65');
-  }
   for (const x of stations) {
-    polygon(
+    c.beginPath();
+    c.ellipse(x, 292, 24, 8, 0, 0, tau);
+    c.stroke();
+    c.beginPath();
+    c.moveTo(x - 3, 292);
+    c.lineTo(x + 3, 292);
+    c.stroke();
+  }
+  c.restore();
+}
+function gripper(c: Context, wrist: Point, gap: number) {
+  const { x, y } = wrist;
+  c.lineJoin = 'round';
+  for (const side of [-1, 1]) {
+    const px = (d: number) => x + side * d;
+    face(
       c,
       [
-        [x - 26, 291],
-        [x, 281],
-        [x + 25, 291],
-        [x, 301],
+        { x: px(4), y: y + 21 },
+        { x: px(12), y: y + 21 },
+        { x: px(gap + 2), y: y + 31 },
+        { x: px(gap + 1), y: y + 47 },
+        { x: px(gap - 3), y: y + 50 },
+        { x: px(gap - 4), y: y + 34 },
       ],
-      '#657c7b30',
-      '#9eaeaa75',
+      graphite.wall[2],
     );
-  }
-  c.restore();
-}
-
-function pedestal(c: Context) {
-  c.save();
-  c.translate(167, 302);
-  c.scale(100, 20);
-  const shadow = c.createRadialGradient(0, 0, 0.18, 0, 0, 1);
-  shadow.addColorStop(0, '#09131ac9');
-  shadow.addColorStop(1, '#09131a00');
-  ellipse(c, 0, 0, 1, 1, shadow);
-  c.restore();
-  function collar(
-    y: number,
-    bottom: number,
-    topRadius: number,
-    bottomRadius: number,
-    color: string,
-    cap: string,
-  ) {
-    polygon(
+    c.strokeStyle = '#303635';
+    c.lineWidth = 0.85;
+    c.stroke();
+    face(
       c,
       [
-        [147 - topRadius, y],
-        [147 + topRadius, y],
-        [147 + bottomRadius, bottom],
-        [147 - bottomRadius, bottom],
+        { x: px(10), y: y + 24 },
+        { x: px(gap), y: y + 32 },
+        { x: px(gap - 1), y: y + 40 },
+        { x: px(gap - 2), y: y + 32 },
       ],
-      color,
+      '#aab0ab',
     );
-    ellipse(c, 147, bottom, bottomRadius, bottomRadius * 0.24, color);
-    ellipse(c, 147, y, topRadius, topRadius * 0.24, cap);
-  }
-  collar(289, 298, 64, 64, '#303f43', '#8e9e9b');
-  collar(282, 289, 60, 61, '#515f5f', '#b9c2b9');
-  collar(254, 281, 37, 54, '#84948f', '#d1d4c7');
-  polygon(
-    c,
-    [
-      [110, 255],
-      [119, 259],
-      [119, 286],
-      [98, 279],
-    ],
-    '#aab7aa',
-  );
-  collar(250, 255, 37, 37, '#39484b', '#677a78');
-  collar(227, 247, 30, 35, '#85938e', '#d3d9ca');
-  for (const [x, y] of [
-    [101, 289],
-    [185, 292],
-    [117, 280],
-    [192, 281],
-  ]) {
-    ellipse(c, x, y, 3, 1.3, '#26383b');
   }
 }
-
-function bolt(c: Context, x: number, y: number, radius = 2.3) {
-  ellipse(c, x, y, radius, radius, '#293c3f');
-  line(
-    c,
-    x - radius * 0.5,
-    y + radius * 0.3,
-    x + radius * 0.5,
-    y - radius * 0.3,
-    '#a6b6af',
-    0.8,
-  );
-}
-
-function joint(c: Context, p: Point, r: number, accent = false) {
-  const { x, y } = p;
-  ellipse(c, x + 5, y - 4, r + 2, r + 2, '#546666');
-  ellipse(c, x, y, r + 2, r + 2, '#1a292d');
-  ellipse(c, x, y, r, r, accent ? '#c67c51' : '#98a7a0');
-  ellipse(c, x, y, r - 3, r - 3, accent ? '#e39b6d' : '#c4cdc0');
-  ellipse(c, x, y, r * 0.62, r * 0.62, '#3b4b4b');
-  ellipse(c, x - 1, y - 1, r * 0.37, r * 0.37, '#6d7d79');
-  bolt(c, x - 1, y - 1, r * 0.13);
-  for (let i = 0; i < 6; i++) {
-    const angle = (i * Math.PI) / 3;
-    bolt(c, x + Math.cos(angle) * r * 0.8, y + Math.sin(angle) * r * 0.8, 1.55);
-  }
-}
-
-function link(
-  c: Context,
-  start: Point,
-  end: Point,
-  wide: number,
-  narrow: number,
-) {
-  const length = Math.hypot(end.x - start.x, end.y - start.y);
-  c.save();
-  c.translate(start.x, start.y);
-  c.rotate(Math.atan2(end.y - start.y, end.x - start.x));
-  const points: Vertex[] = [
-    [0, -wide],
-    [21, -wide - 2],
-    [length - 26, -narrow - 2],
-    [length, -narrow],
-    [length + 2, narrow - 1],
-    [length - 21, narrow + 2],
-    [27, wide + 2],
-    [0, wide],
-  ];
-  polygon(
-    c,
-    points.map(([x, y]) => [x + 5, y - 6]),
-    '#84948e',
-  );
-  const alloy = c.createLinearGradient(0, -wide, 12, wide);
-  alloy.addColorStop(0, '#e6e6d3');
-  alloy.addColorStop(0.5, '#c1cabc');
-  alloy.addColorStop(1, '#96a59c');
-  polygon(c, points, alloy, '#485956');
-  polygon(
-    c,
-    [
-      [18, -wide + 2],
-      [length - 22, -narrow + 1],
-      [length - 29, -narrow + 5],
-      [31, -wide + 7],
-    ],
-    '#f5f1dcbf',
-  );
-  polygon(
-    c,
-    [
-      [29, wide - 7],
-      [length - 26, narrow - 4],
-      [length - 30, narrow],
-      [33, wide - 1],
-    ],
-    '#73847e',
-  );
-  polygon(
-    c,
-    [
-      [32, -3],
-      [length - 34, -3],
-      [length - 44, 4],
-      [41, 5],
-    ],
-    '#a0ada3',
-  );
-  for (let i = 0; i < 3; i++)
-    line(c, 36 + i * 5, wide - 10, 38 + i * 5, wide - 14, '#536560', 1.4);
-  bolt(c, 25, -wide + 8);
-  bolt(c, length - 23, narrow - 6);
-  c.restore();
-}
-
-function cube(c: Context, p: Point) {
-  const { x, y } = p;
-  polygon(
-    c,
-    [
-      [x - 13, y - 8],
-      [x, y - 14],
-      [x + 13, y - 8],
-      [x, y - 2],
-    ],
-    '#ffc394',
-  );
-  polygon(
-    c,
-    [
-      [x - 13, y - 8],
-      [x, y - 2],
-      [x, y + 12],
-      [x - 13, y + 5],
-    ],
-    '#dc8b5e',
-  );
-  polygon(
-    c,
-    [
-      [x, y - 2],
-      [x + 13, y - 8],
-      [x + 13, y + 5],
-      [x, y + 12],
-    ],
-    '#b46b47',
-  );
-}
-
 export function drawArm(c: Context, wrist: Point, part: Point, grip: number) {
-  c.clearRect(0, 0, stage.width, stage.height);
-  workshop(c);
-  pedestal(c);
-  // Pick the raised-elbow solution of the two-link inverse kinematics.
-  const dx = wrist.x - shoulder.x,
-    dy = wrist.y - shoulder.y;
-  const distance = Math.hypot(dx, dy);
-  const angle =
-    Math.atan2(dy, dx) -
+  c.clearRect(stage.x, stage.y, stage.width, stage.height);
+  const tip: Plan = { x: wrist.x, z: 8 + (wrist.y - rest.y) * 0.46 };
+  // SCARA inverse kinematics in the horizontal plane; the quill handles vertical travel.
+  const dx = tip.x - base.x,
+    dz = tip.z - base.z,
+    reach = Math.hypot(dx, dz);
+  const upper = 158,
+    fore = 155;
+  const heading =
+    Math.atan2(dz, dx) -
     Math.acos(
-      Math.max(
-        -1,
-        Math.min(
-          1,
-          (humerus * humerus + distance * distance - forearm * forearm) /
-            (2 * humerus * distance),
-        ),
+      Math.min(
+        1,
+        (upper * upper + reach * reach - fore * fore) / (2 * upper * reach),
       ),
     );
   const elbow = {
-    x: shoulder.x + humerus * Math.cos(angle),
-    y: shoulder.y + humerus * Math.sin(angle),
+    x: base.x + upper * Math.cos(heading),
+    z: base.z + upper * Math.sin(heading),
   };
-  // Flexible black loom just outside the shoulder and upper link.
-  c.beginPath();
-  c.moveTo(117, 241);
-  c.bezierCurveTo(
-    90,
-    188,
-    elbow.x - 42,
-    elbow.y - 22,
-    elbow.x + 8,
-    elbow.y - 17,
-  );
-  c.strokeStyle = '#16262a';
-  c.lineWidth = 9;
-  c.stroke();
-  c.strokeStyle = '#768783';
-  c.lineWidth = 2;
-  c.stroke();
-  link(c, shoulder, elbow, 22, 18);
-  joint(c, shoulder, 29, true);
-  link(c, elbow, wrist, 18, 11);
-  joint(c, elbow, 23);
-  const { x, y } = wrist;
-  polygon(
+  const quill = ground + tip.z * tilt - wrist.y;
+  floorMarks(c);
+  shadow(c, 250, 284, 186, 32, 0.17);
+  shadow(c, base.x + 3, 281, 70, 21, 0.35);
+  shadow(
     c,
-    [
-      [x - 7, y],
-      [x + 10, y - 2],
-      [x + 10, y + 19],
-      [x - 7, y + 19],
-    ],
-    '#75847f',
+    part.x + 2,
+    292,
+    18,
+    6,
+    Math.max(0.05, 0.24 - (cubeFloor - part.y) * 0.002),
   );
-  polygon(
-    c,
-    [
-      [x - 12, y + 14],
-      [x + 13, y + 14],
-      [x + 13, y + 25],
-      [x - 12, y + 25],
-    ],
-    '#c8d0c3',
-  );
-  polygon(
-    c,
-    [
-      [x - 12, y + 22],
-      [x + 13, y + 22],
-      [x + 13, y + 26],
-      [x - 12, y + 26],
-    ],
-    '#62716d',
-  );
-  joint(c, wrist, 13, true);
-  cube(c, part);
-  const gap = 20 - 7 * grip;
-  for (const sign of [-1, 1]) {
-    const side = (offset: number) => x + sign * offset;
-    polygon(
-      c,
-      [
-        [side(5), y + 26],
-        [side(12), y + 25],
-        [side(gap + 2), y + 34],
-        [side(gap + 1), y + 48],
-        [side(gap - 3), y + 50],
-        [side(gap - 3), y + 36],
-      ],
-      '#aebbb1',
-      '#586c69',
-    );
-    line(c, side(gap - 3), y + 40, side(gap - 3), y + 48, '#23373a', 2);
-  }
+  loom(c, elbow);
+  platform(c);
+  housingLayers(c, base, elbow, 33, 24, 108, 24);
+  detailCap(c, base, 132, 21);
+  vents(c, base, elbow, 132.1);
+  turned(c, elbow, 132, 142, 21, 21, graphite);
+  turned(c, elbow, 142, 145, 21, 21, titanium);
+  // The lower end of the quill is occluded by its guide housing.
+  const guide = { x: tip.x - 6, z: tip.z + 1 };
+  turned(c, guide, quill + 2, Math.max(quill + 3, 146), 2.1, 2.1, graphite);
+  turned(c, tip, quill + 1, Math.max(quill + 2, 145), 5.2, 5.2, titanium);
+  housingLayers(c, elbow, tip, 27, 18, 145, 21);
+  detailCap(c, elbow, 166, 17);
+  // The narrow steel quill passes through the fixed graphite linear bearing.
+  vents(c, elbow, tip, 166.1);
+  turned(c, tip, 166, 176, 12, 12, graphite);
+  const travel = Math.max(4, quill - 67);
+  turned(c, tip, 176, 176 + travel * 0.42, 5, 5, titanium);
+  // Draw the actuator from bottom to top so its cap never hides the collar.
+  turned(c, tip, quill - 23, quill - 12, 12, 15, graphite);
+  turned(c, tip, quill - 12, quill - 9, 15, 15, orange);
+  turned(c, tip, quill - 9, quill + 2, 15, 11, titanium);
+  workpiece(c, part);
+  gripper(c, wrist, 20 - grip * 6);
 }

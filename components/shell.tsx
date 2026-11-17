@@ -5,7 +5,7 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from 'react';
-import { MotionConfig } from 'motion/react';
+import { motion, MotionConfig } from 'motion/react';
 import { Asterisk, ArrowUpRight, Github, Menu, X } from 'lucide-react';
 import { Fade } from './animate-ui/primitives/effects/fade';
 import {
@@ -92,6 +92,10 @@ const nav = [
 export function Shell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false),
     [active, setActive] = useState('');
+  const [hovered, setHovered] = useState('');
+  const [focused, setFocused] = useState('');
+  const reduced = useStudioReducedMotion();
+  const highlighted = hovered || focused || active;
   useEffect(() => {
     const sections = Array.from(document.querySelectorAll('main section[id]'));
     const observer = new IntersectionObserver(
@@ -134,6 +138,11 @@ export function Shell({ children }: { children: ReactNode }) {
             <nav
               id="nav-links"
               aria-label="主导航"
+              onPointerLeave={() => setHovered('')}
+              onBlur={(event) => {
+                if (!event.currentTarget.contains(event.relatedTarget))
+                  setFocused('');
+              }}
               className={open ? 'nav open' : 'nav'}
             >
               {nav.map(([id, title]) => (
@@ -141,8 +150,28 @@ export function Shell({ children }: { children: ReactNode }) {
                   key={id}
                   href={base + '/#' + id}
                   aria-current={active === id ? 'location' : undefined}
-                  onClick={() => setOpen(false)}
+                  onPointerEnter={(event) => {
+                    if (event.pointerType !== 'touch') setHovered(id);
+                  }}
+                  onFocus={(event) => {
+                    if (event.currentTarget.matches(':focus-visible'))
+                      setFocused(id);
+                  }}
+                  onClick={() => {
+                    setOpen(false);
+                    setFocused('');
+                    setHovered('');
+                  }}
                 >
+                  {highlighted === id && (
+                    <motion.span
+                      aria-hidden="true"
+                      className="nav-highlight"
+                      layoutId="studio-nav-highlight"
+                      initial={false}
+                      transition={reduced ? { duration: 0 } : controlTransition}
+                    />
+                  )}
                   {title}
                 </a>
               ))}

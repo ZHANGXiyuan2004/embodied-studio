@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Crosshair, Play } from 'lucide-react';
+import { LoaderCircle, Play } from 'lucide-react';
 import { base } from '@/lib/studio';
 import { useStudioReducedMotion } from './shell';
 import { attachArm } from './arm/controller';
@@ -27,15 +27,14 @@ export function ArmScene() {
 
   return (
     <figure className="arm-scene">
-      <figcaption className="scene-heading">
-        <Crosshair size={14} aria-hidden="true" />
-        机械臂抓放实验
-      </figcaption>
-      <div className="scene-display">
+      <div
+        className="scene-display"
+        style={{ aspectRatio: stage.width / stage.height }}
+      >
         <img
           className="scene-poster"
-          src={base + '/arm-rest.webp'}
-          alt="机械臂悬停在橙色方块上方"
+          src={base + '/scara-rest.webp'}
+          alt="浅色双关节桌面机械臂张开夹爪，准备搬运橙色方块"
           hidden={ready}
           width={stage.width}
           height={stage.height}
@@ -51,23 +50,36 @@ export function ArmScene() {
           aria-describedby="arm-help"
         />
       </div>
-      <div className="scene-controls" hidden={!ready}>
-        <span id="arm-help">
-          <span className="pointer-tip">
-            {reduced ? '点击或轻触定位' : '移动指针或轻触定位'}
+      <figcaption className="scene-caption">
+        <div>
+          <span className="scene-heading">机械臂抓放实验</span>
+          <span id="arm-help" hidden={!ready}>
+            <span className="pointer-tip">
+              {reduced ? '点击或轻触定位' : '移动指针或轻触定位'}
+            </span>
+            <span className="key-tip">方向键移动夹爪</span>
           </span>
-          <span className="key-tip">方向键移动夹爪</span>
-        </span>
-        <button
-          type="button"
-          className="scene-play"
-          aria-disabled={running}
-          onClick={() => controller.current?.demo()}
-        >
-          <Play size={12} aria-hidden="true" />
-          {running ? '抓放中…' : '演示抓放'}
-        </button>
-      </div>
+        </div>
+        <div className="scene-controls" hidden={!ready}>
+          <button
+            type="button"
+            className="scene-play"
+            aria-disabled={running}
+            onClick={() => controller.current?.demo()}
+          >
+            {running ? (
+              <LoaderCircle
+                className="running-icon"
+                size={14}
+                aria-hidden="true"
+              />
+            ) : (
+              <Play size={14} aria-hidden="true" />
+            )}
+            {running ? '抓放中…' : '演示抓放'}
+          </button>
+        </div>
+      </figcaption>
       <span className="sr-only" role="status">
         {announcement}
       </span>

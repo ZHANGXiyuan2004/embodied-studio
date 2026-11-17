@@ -47,8 +47,8 @@ export function attachArm(
       0,
       0,
       height / stage.height,
-      0,
-      0,
+      (-stage.x * width) / stage.width,
+      (-stage.y * height) / stage.height,
     );
     redraw();
   }
@@ -109,8 +109,10 @@ export function attachArm(
   function pointAtEvent(e: PointerEvent) {
     const box = canvas.getBoundingClientRect();
     pointTo(
-      ((e.clientX - box.left) / box.width) * stage.width,
-      ((e.clientY - box.top) / box.height) * stage.height - graspOffset,
+      stage.x + ((e.clientX - box.left) / box.width) * stage.width,
+      stage.y +
+        ((e.clientY - box.top) / box.height) * stage.height -
+        graspOffset,
     );
   }
   function track(e: PointerEvent) {
