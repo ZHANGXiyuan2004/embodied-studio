@@ -1,4 +1,4 @@
-# 叉社具身工作室 · 演示站
+# 行知具身工作室 · 演示站
 
 [工作室演示站](https://chashe-embodied-studio.pages.dev/)
 

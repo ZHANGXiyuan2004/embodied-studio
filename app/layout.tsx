@@ -1,14 +1,13 @@
 import type { Metadata } from 'next';
 import { Shell } from '@/components/shell';
-import { base } from '@/lib/studio';
+import { base, studioName } from '@/lib/studio';
 import './globals.css';
 export const metadata: Metadata = {
   title: {
-    default: '叉社具身工作室 · Embodied Studio',
-    template: '%s · 叉社具身工作室',
+    default: `${studioName} · Embodied Studio`,
+    template: `%s · ${studioName}`,
   },
-  description:
-    '叉社具身工作室展示样站：项目示例、学习笔记、合作伙伴和指导教师。',
+  description: `${studioName}的项目展示、学习笔记、合作伙伴和指导教师。`,
   icons: { icon: base + '/icon.png' },
 };
 // Register before first paint so both cold loads and history restores can pair the two covers.

@@ -15,7 +15,7 @@ test('点击方块后跟随落点，放置完成后可从新位置再次抓取',
   const spot = { x: box.width * 0.75, y: box.height * 0.79 };
   await canvas.hover({ position: spot });
   await canvas.click({ position: spot });
-  await expect(status).toContainText('放置完成');
+  await expect(status).toContainText('方块已放置');
   expect(Math.abs((await cube.boundingBox())!.x - before.x)).toBeGreaterThan(
     10,
   );
@@ -23,7 +23,7 @@ test('点击方块后跟随落点，放置完成后可从新位置再次抓取',
   await canvas.click({
     position: { x: box.width * 0.55, y: box.height * 0.82 },
   });
-  await expect(status).toContainText('放置完成');
+  await expect(status).toContainText('方块已放置');
   await expect(cube).toBeVisible();
 });
 
@@ -37,7 +37,7 @@ test('减少动态效果时仍可用键盘抓取和放置', async ({ page }) => 
   await expect(canvas).toBeFocused();
   await canvas.press('ArrowRight');
   await canvas.press('Enter');
-  await expect(page.locator('#arm-help')).toContainText('放置完成');
+  await expect(page.locator('#arm-help')).toContainText('方块已放置');
   await expect(cube).toBeVisible();
 });
 
@@ -55,7 +55,7 @@ test('手机可轻点方块再轻点台面放置', async ({ browser }) => {
     const table = page.getByRole('group', { name: 'Franka 抓放工作台' });
     const box = (await table.boundingBox())!;
     await table.tap({ position: { x: box.width * 0.75, y: box.height * 0.8 } });
-    await expect(page.locator('#arm-help')).toContainText('放置完成');
+    await expect(page.locator('#arm-help')).toContainText('方块已放置');
   } finally {
     await context.close();
   }

@@ -5,7 +5,7 @@
 | 站内交互 | 官方实现 |
 | --- | --- |
 | 桌面章节导航；手机菜单 | Highlight / HighlightItem；Radix Popover、Button 和 Menu |
-| 首页标题、章节出现、项目入口翻面 | SplittingText、Fade、FlipButton |
+| 首页标题、章节出现、社团入口翻面 | SplittingText、Fade、FlipButton |
 | 内页返回、项目卡片和外链反馈 | AnimateIcon 驱动 ArrowLeft、ArrowRight、ExternalLink |
 | 学习笔记、抓放演示按钮 | Radix Accordion、Button、Play、LoaderCircle |
 

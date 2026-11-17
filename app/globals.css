@@ -220,17 +220,6 @@ figure {
   line-height: 1.09;
   margin: 0 0 20px -0.038em;
 }
-.hero-lead {
-  font-size: clamp(17px, 1.5vw, 22px);
-  letter-spacing: -0.025em;
-  line-height: 1.5;
-}
-.hero-desc {
-  margin-top: 5px;
-  font-size: 14px;
-  line-height: 1.8;
-  color: var(--muted);
-}
 .hero-actions,
 .actions {
   display: flex;
@@ -310,32 +299,39 @@ figure {
   grid-template-columns: 1fr 1fr;
   gap: 10px;
 }
-.hero-actions .text-link {
-  width: 100%;
-}
-.hero-actions .text-link,
+.hero-actions .contact-button,
 .scene-play {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
   min-height: 44px;
-  padding: 0 15px;
-  border: 1px solid var(--line);
+  border: 0;
   border-radius: var(--control-radius);
-  background: var(--surface);
+  background: transparent;
   color: var(--ink);
-  font-size: 13px;
-  font-weight: 500;
-  transition:
-    background-color var(--control-time) var(--ease-studio),
-    border-color var(--control-time) var(--ease-studio);
+  transition: background-color var(--control-time) var(--ease-studio);
 }
-.hero-actions .text-link:is(:hover, :focus-visible),
-.scene-play:is(:hover, :focus-visible) {
+.contact-button {
+  gap: 8px;
+  padding-inline: 12px;
+  font-size: 14px;
+  font-weight: 550;
+}
+.hero-actions .contact-button:is(:hover, :focus-visible),
+.scene-play:not([aria-disabled='true']):is(:hover, :focus-visible) {
   background: var(--field);
-  border-color: #abaea4;
-  text-decoration: none;
+}
+.manual-contact {
+  grid-column: 1 / -1;
+  font-size: 13px;
+  color: var(--muted);
+}
+.manual-contact input {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  color: var(--ink);
+  user-select: all;
 }
 .text-link,
 .back,
@@ -350,6 +346,7 @@ figure {
   flex-shrink: 0;
 }
 .arm-scene {
+  position: relative;
   min-width: 0;
   overflow: clip;
 }
@@ -391,29 +388,6 @@ figure {
   outline: 2px solid var(--focus);
   outline-offset: -4px;
 }
-.scene-caption {
-  min-height: 70px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px 0;
-}
-.scene-heading {
-  display: block;
-  font-size: 15px;
-  font-weight: 600;
-  line-height: 1.5;
-  letter-spacing: -0.025em;
-}
-#arm-help {
-  display: block;
-  color: var(--muted);
-  font-size: 11px;
-  line-height: 1.5;
-  margin-top: 2px;
-}
-.scene-controls[hidden],
 .scene-poster[hidden] {
   display: none;
 }
@@ -435,27 +409,15 @@ figure {
 .cube-target:hover {
   outline: 1px dashed var(--accent-ink);
 }
-#arm-help.placed {
-  color: var(--accent-ink);
-  font-weight: 600;
-}
-.arm-scene:has(canvas:focus-visible) #arm-keys {
-  position: static;
-  display: block;
-  width: auto;
-  height: auto;
-  clip-path: none;
-  clip: auto;
-  overflow: visible;
-  white-space: normal;
-  color: var(--muted);
-  font-size: 11px;
-}
 .scene-play {
-  min-width: 102px;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 44px;
+  height: 44px;
 }
 .scene-play[aria-disabled='true'] {
-  cursor: progress;
+  opacity: 0.55;
 }
 .section {
   border-top: 1px solid var(--line);
@@ -901,9 +863,6 @@ dialog .actions {
   .card-grid {
     gap: 13px;
   }
-  .hero-desc {
-    font-size: 13px;
-  }
   .header-right {
     gap: 18px;
   }
@@ -918,8 +877,13 @@ dialog .actions {
   .wrap {
     width: calc(100% - 36px);
   }
+  .brand {
+    gap: 8px;
+    font-size: clamp(16px, 4.5vw, 20px);
+  }
   .header-inner {
     height: 60px;
+    gap: 8px;
   }
   .github-link {
     border: 0;
@@ -1000,15 +964,8 @@ dialog .actions {
   .hero-title br {
     display: none;
   }
-  .scene-caption {
-    min-height: 64px;
-    padding: 10px 0;
-  }
   .hero-kicker {
     margin-bottom: 13px;
-  }
-  .hero-desc {
-    max-width: 480px;
   }
   .hero-actions {
     margin-top: 18px;

@@ -14,7 +14,7 @@ const feedback: Record<ArmPhase, string> = {
   holding: '已抓取。移动鼠标预览落点，再点台面放置。',
   placing: '正在放置方块…',
   demo: '正在演示抓取和放置…',
-  complete: '放置完成！再次点击方块可继续。',
+  complete: '方块已放置。',
 };
 
 export function ArmScene() {
@@ -101,44 +101,33 @@ export function ArmScene() {
           />
         )}
       </div>
-      <figcaption className="scene-caption">
-        <div>
-          <span className="scene-heading">Franka Panda 抓放实验</span>
-          <span
-            id="arm-help"
-            role="status"
-            aria-live="polite"
-            aria-atomic="true"
-            className={phase === 'complete' ? 'placed' : undefined}
-          >
-            {ready
-              ? feedback[phase]
-              : failed
-                ? '当前浏览器无法加载三维演示。'
-                : ''}
-          </span>
-          <span id="arm-keys" className="sr-only">
-            按回车抓取，方向键选择落点，再按回车放置。
-          </span>
-        </div>
-        <div className="scene-controls" hidden={!ready}>
-          <Button
-            type="button"
-            className="scene-play"
-            hoverScale={1}
-            tapScale={reduced || !canPick ? 1 : 0.97}
-            aria-disabled={!canPick}
-            onClick={() => controller.current?.demo()}
-          >
-            {phase === 'demo' ? (
-              <LoaderCircle animate={!reduced} size={15} aria-hidden="true" />
-            ) : (
-              <Play size={15} aria-hidden="true" />
-            )}
-            {phase === 'demo' ? '抓放中…' : '演示抓放'}
-          </Button>
-        </div>
+      <figcaption className="sr-only">
+        <span id="arm-help" role="status" aria-atomic="true">
+          {ready
+            ? feedback[phase]
+            : failed
+              ? '当前浏览器无法加载三维演示。'
+              : ''}
+        </span>
+        <span id="arm-keys">按回车抓取，方向键选择落点，再按回车放置。</span>
       </figcaption>
+      {ready && (
+        <Button
+          type="button"
+          className="scene-play"
+          aria-label="播放抓放演示"
+          hoverScale={1}
+          tapScale={reduced || !canPick ? 1 : 0.95}
+          aria-disabled={!canPick}
+          onClick={() => controller.current?.demo()}
+        >
+          {phase === 'demo' ? (
+            <LoaderCircle animate={!reduced} size={19} aria-hidden="true" />
+          ) : (
+            <Play size={19} aria-hidden="true" />
+          )}
+        </Button>
+      )}
     </figure>
   );
 }

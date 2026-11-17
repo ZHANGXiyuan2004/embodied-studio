@@ -8,7 +8,6 @@ import {
 } from 'react';
 import { MotionConfig, type MotionStyle } from 'motion/react';
 import { ActionLink } from './action-link';
-import { ArrowRight } from './animate-ui/icons/arrow-right';
 import { ExternalLink } from './animate-ui/icons/external-link';
 import { Layers } from './animate-ui/icons/layers';
 import { ClipboardList } from './animate-ui/icons/clipboard-list';
@@ -35,11 +34,14 @@ import {
   FlipButtonFront,
   FlipButtonBack,
 } from './animate-ui/components/buttons/flip';
-import { base, github } from '@/lib/studio';
+import { base, github, studioName } from '@/lib/studio';
 import { controlTransition, revealTransition } from '@/lib/motion';
 
 // Keep native URLs and history while limiting smooth scrolling to intentional section jumps.
-function followSection(event: MouseEvent<HTMLAnchorElement>) {
+function followSection(
+  event: MouseEvent<HTMLAnchorElement>,
+  onSelect: (id: string) => void,
+) {
   if (
     event.defaultPrevented ||
     event.button !== 0 ||
@@ -62,6 +64,7 @@ function followSection(event: MouseEvent<HTMLAnchorElement>) {
   event.preventDefault();
   if (link.hash !== location.hash)
     history.pushState(history.state, '', link.href);
+  onSelect(section.id);
   section.focus({ preventScroll: true });
   // A second selection can arrive while the browser is scrolling to the first.
   // Cancel that command before targeting the next section, including siblings on the same row.
@@ -109,30 +112,28 @@ function flipFaceTransform(values: MotionStyle, transform: string) {
 export function FlipLink({
   href,
   children,
-  back,
 }: {
   href: string;
   children: string;
-  back: string;
 }) {
   const reduced = useStudioReducedMotion();
   return (
     <FlipButton asChild whileFocus="hover" tapScale={1} aria-label={children}>
-      <a href={href} className="flip-link" onClick={followSection}>
+      <a href={href} className="flip-link">
         <FlipButtonFront
           transformTemplate={flipFaceTransform}
           transition={reduced ? { duration: 0 } : controlTransition}
         >
           {children}
-          <ArrowRight size={16} aria-hidden="true" />
+          <ExternalLink size={16} aria-hidden="true" />
         </FlipButtonFront>
         <FlipButtonBack
           transformTemplate={flipFaceTransform}
           aria-hidden="true"
           transition={reduced ? { duration: 0 } : controlTransition}
         >
-          {back}
-          <ArrowRight size={16} aria-hidden="true" />
+          {children}
+          <ExternalLink size={16} aria-hidden="true" />
         </FlipButtonBack>
       </a>
     </FlipButton>
@@ -145,7 +146,13 @@ const nav = [
   { id: 'mentors', title: '指导教师', icon: UsersRound },
 ];
 
-function MobileNav({ active }: { active: string }) {
+function MobileNav({
+  active,
+  onSelect,
+}: {
+  active: string;
+  onSelect: (id: string) => void;
+}) {
   const [open, setOpen] = useState(false);
   const reduced = useStudioReducedMotion();
   const destination = useRef<string | null>(null);
@@ -215,7 +222,7 @@ function MobileNav({ active }: { active: string }) {
                     )
                       return;
                     destination.current = id;
-                    followSection(event);
+                    followSection(event, onSelect);
                     setOpen(false);
                   }}
                 >
@@ -237,9 +244,18 @@ export function Shell({ children }: { children: ReactNode }) {
   const [focused, setFocused] = useState('');
   const reduced = useStudioReducedMotion();
   const highlighted = hovered || focused || active;
+  const scrollingTo = useRef<string | null>(null);
+  function selectSection(id: string) {
+    scrollingTo.current = id;
+    setActive(id);
+    setFocused('');
+    setHovered('');
+  }
   useEffect(() => {
     const main = document.querySelector('main');
-    const sections = Array.from(document.querySelectorAll('main section[id]'));
+    const sections = nav
+      .map(({ id }) => document.getElementById(id))
+      .filter((section) => section !== null);
     if (!main || !sections.length) {
       if (location.pathname.includes('/projects/')) setActive('projects');
       return;
@@ -269,24 +285,61 @@ export function Shell({ children }: { children: ReactNode }) {
           latestTop = rect.top;
         }
       }
+      // Ignore intervening sections during a link-initiated smooth scroll.
+      if (scrollingTo.current && scrollingTo.current !== current) return;
+      scrollingTo.current = null;
       setActive(current);
     }
     function schedule() {
       if (!frame) frame = requestAnimationFrame(update);
+    }
+    function resumeScrollTracking() {
+      scrollingTo.current = null;
+      schedule();
+    }
+    function onScrollKey(event: KeyboardEvent) {
+      if (
+        [
+          'ArrowUp',
+          'ArrowDown',
+          'PageUp',
+          'PageDown',
+          'Home',
+          'End',
+          ' ',
+        ].includes(event.key)
+      )
+        resumeScrollTracking();
+    }
+    function onScrollbarPointer(event: PointerEvent) {
+      if (event.clientX >= document.documentElement.clientWidth)
+        resumeScrollTracking();
     }
     update();
     const resize = new ResizeObserver(schedule);
     resize.observe(main);
     window.addEventListener('scroll', schedule, { passive: true });
     window.addEventListener('resize', schedule);
-    window.addEventListener('hashchange', schedule);
+    window.addEventListener('hashchange', resumeScrollTracking);
+    window.addEventListener('popstate', resumeScrollTracking);
+    window.addEventListener('wheel', resumeScrollTracking, { passive: true });
+    window.addEventListener('touchstart', resumeScrollTracking, {
+      passive: true,
+    });
+    window.addEventListener('keydown', onScrollKey);
+    window.addEventListener('pointerdown', onScrollbarPointer);
     main.addEventListener('focusin', schedule);
     return () => {
       resize.disconnect();
       cancelAnimationFrame(frame);
       window.removeEventListener('scroll', schedule);
       window.removeEventListener('resize', schedule);
-      window.removeEventListener('hashchange', schedule);
+      window.removeEventListener('hashchange', resumeScrollTracking);
+      window.removeEventListener('popstate', resumeScrollTracking);
+      window.removeEventListener('wheel', resumeScrollTracking);
+      window.removeEventListener('touchstart', resumeScrollTracking);
+      window.removeEventListener('keydown', onScrollKey);
+      window.removeEventListener('pointerdown', onScrollbarPointer);
       main.removeEventListener('focusin', schedule);
     };
   }, []);
@@ -300,13 +353,14 @@ export function Shell({ children }: { children: ReactNode }) {
           <a
             className="brand"
             href={base + '/'}
-            aria-label="叉社具身工作室首页"
+            aria-label={studioName + '首页'}
           >
             <span className="brand-mark">
               <img src={base + '/icon.png'} alt="" width={33} height={33} />
             </span>
             <span>
-              叉社<span className="brand-en">Embodied Studio</span>
+              {studioName}
+              <span className="brand-en">Embodied Studio</span>
             </span>
           </a>
           <div className="header-right">
@@ -343,11 +397,7 @@ export function Shell({ children }: { children: ReactNode }) {
                         if (event.currentTarget.matches(':focus-visible'))
                           setFocused(id);
                       }}
-                      onClick={(event) => {
-                        followSection(event);
-                        setFocused('');
-                        setHovered('');
-                      }}
+                      onClick={(event) => followSection(event, selectSection)}
                     >
                       <Icon size={15} aria-hidden="true" />
                       {title}
@@ -364,13 +414,13 @@ export function Shell({ children }: { children: ReactNode }) {
               <span>GitHub</span>
               <ExternalLink size={14} aria-hidden="true" />
             </ActionLink>
-            <MobileNav active={active} />
+            <MobileNav active={active} onSelect={selectSection} />
           </div>
         </div>
       </header>
       {children}
       <footer className="footer wrap">
-        <span>© 2026 叉社具身工作室</span>
+        <span>© 2026 {studioName}</span>
         <nav aria-label="页脚导航">
           <a href={base + '/license/'}>许可与署名</a>
           <ActionLink href={github}>
@@ -381,7 +431,7 @@ export function Shell({ children }: { children: ReactNode }) {
       <noscript>
         <style>
           {
-            '@media(max-width:700px){.mobile-navigation{display:none}.site-header .nav{display:flex;flex-wrap:wrap}.header-inner{height:auto;flex-wrap:wrap;padding-block:8px}.header-right,.nav-items{flex-wrap:wrap;max-width:100%}}.reveal,.hero-title span{opacity:1!important;transform:none!important}[data-slot="tabs-contents"]{height:auto!important}[data-slot="tabs-contents"]>div{display:block!important;transform:none!important}[data-slot="tabs-list"]{display:none!important}'
+            '.hero-actions .contact-button{display:none}@media(max-width:700px){.mobile-navigation{display:none}.site-header .nav{display:flex;flex-wrap:wrap}.header-inner{height:auto;flex-wrap:wrap;padding-block:8px}.header-right,.nav-items{flex-wrap:wrap;max-width:100%}}.reveal,.hero-title span{opacity:1!important;transform:none!important}[data-slot="tabs-contents"]{height:auto!important}[data-slot="tabs-contents"]>div{display:block!important;transform:none!important}[data-slot="tabs-list"]{display:none!important}'
           }
         </style>
       </noscript>

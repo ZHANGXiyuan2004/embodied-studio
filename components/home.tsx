@@ -13,6 +13,7 @@ import {
   AccordionContent,
 } from './animate-ui/components/radix/accordion';
 import { Reveal, FlipLink } from './shell';
+import { ContactButton } from './contact-button';
 import { ArmScene } from './arm-scene';
 import { ProjectImage } from './project-image';
 import { controlTransition, revealTransition } from '@/lib/motion';
@@ -22,7 +23,8 @@ import {
   notes,
   partners,
   mentors,
-  submitIdea,
+  associationUrl,
+  studioName,
   ideasFeed,
   type DirectoryEntry,
 } from '@/lib/studio';
@@ -111,10 +113,10 @@ export function Home() {
       <section className="hero" id="studio">
         <div className="hero-copy">
           <p className="kicker hero-kicker">Embodied Intelligence Studio</p>
-          <h1 className="hero-title" aria-label="叉社具身工作室">
+          <h1 className="hero-title" aria-label={studioName}>
             <SplittingText
               type="lines"
-              text={['叉社具身', '工作室']}
+              text={['行知具身', '工作室']}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={revealTransition}
@@ -122,15 +124,9 @@ export function Home() {
               disableAnimation={reduced}
             />
           </h1>
-          <p className="hero-lead">把具身智能的想法做成原型。</p>
-          <p className="hero-desc">浏览工作室的项目 Demo，或分享一个想法。</p>
           <div className="hero-actions">
-            <FlipLink href="#projects" back="进入项目库">
-              探索项目
-            </FlipLink>
-            <ActionLink className="text-link" href={submitIdea}>
-              分享想法 <ExternalLink size={16} aria-hidden="true" />
-            </ActionLink>
+            <FlipLink href={associationUrl}>浏览社团</FlipLink>
+            <ContactButton />
           </div>
         </div>
         <ArmScene />

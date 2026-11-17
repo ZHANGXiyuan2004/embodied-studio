@@ -1,7 +1,9 @@
 export const repository = 'ZHANGXiyuan2004/embodied-studio';
 export const github = 'https://github.com/' + repository;
 export const base = process.env.NEXT_PUBLIC_BASE_PATH || '';
-export const submitIdea = github + '/issues/new?template=idea.yml';
+export const studioName = '行知具身工作室';
+export const associationUrl = 'https://uestc-ia.github.io/';
+export const wechatId = 'DeepSeekv4flash0731';
 export const ideasFeed = github + '/issues?q=is%3Aissue+label%3Aidea';
 export function collaborate(title: string) {
   return (

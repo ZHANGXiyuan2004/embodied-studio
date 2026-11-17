@@ -1,4 +1,4 @@
-叉社具身工作室 · Third-party notices
+行知具身工作室 · Third-party notices
 随网页提供的软件与图标沿用各自条款。以下按许可原文归组，组内列出对应项目。
 构建与动效适配参考 https://github.com/ZHANGXiyuan2004/ZHANGXiyuan2004.github.io/tree/e0cab6988f5c1828354b324742975f6898f1dd69
 
