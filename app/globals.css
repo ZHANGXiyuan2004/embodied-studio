@@ -536,6 +536,7 @@ h2 {
 .project-card {
   display: flex;
   flex-direction: column;
+  scroll-margin-block-start: clamp(40px, 14vh, 130px);
 }
 .card-visual {
   overflow: hidden;

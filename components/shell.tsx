@@ -363,7 +363,7 @@ export function Shell({ children }: { children: ReactNode }) {
         </div>
       </header>
       {children}
-      <footer className="footer wrap">
+      <footer id="site-footer" className="footer wrap">
         <span>© 2026 {studioName}</span>
         <nav aria-label="页脚导航">
           <a href={base + '/license/'}><span className="link-underline">许可与署名</span></a>

@@ -76,6 +76,6 @@ test('减少动态效果时仍可用键盘直接打开和返回', async ({ page 
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('项目一');
   await expect(page.locator('html')).not.toHaveAttribute('data-animated', 'yes');
   await page.getByRole('link', { name: '返回项目展示' }).press('Enter');
-  await expect(page).toHaveURL(url + '#projects');
+  await expect(page).toHaveURL(url + '#project-1');
   await expect(page.locator('html')).not.toHaveAttribute('data-animated', 'yes');
 });

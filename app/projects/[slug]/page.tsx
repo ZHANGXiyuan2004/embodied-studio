@@ -20,7 +20,7 @@ export default async function ProjectPage({ params }: Props) {
   if (!p) notFound();
   return (
     <main id="main" className="wrap inner-page">
-      <ActionLink className="back project-return" href={base + '/#projects'}>
+      <ActionLink className="back project-return" href={base + '/#' + p.slug}>
         <ArrowLeft size={16} aria-hidden="true" />
         <span className="link-underline">返回项目展示</span>
       </ActionLink>

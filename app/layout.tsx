@@ -22,20 +22,18 @@ const projectTransitions = `
       const selector = '[data-cover-peer="' + CSS.escape(peer.pathname) + '"]';
       const cover = document.querySelector(selector);
       if (!cover) return;
-      const onGallery = !!cover.closest('.project-card');
-      const returning = incoming ? onGallery : !onGallery;
+      const card = cover.closest('.project-card');
+      const returning = incoming ? !!card : !card;
       const traversing = activation.navigationType === 'traverse';
-      if (!traversing && new URL(destination).hash !== (returning ? '#projects' : '')) return;
+      const hash = new URL(destination).hash;
+      const projectHash = card ? '#' + card.id : document.querySelector('.project-return')?.hash;
+      if (!traversing && (returning ? hash !== projectHash && hash !== '#projects' : !!hash)) return;
       if (incoming) {
         transition.types?.add('project');
         if (returning) transition.types?.add('project-return');
-        // Explicit returns reveal the selected card. History restores its own scroll position.
-        if (onGallery && !traversing) {
-          const rect = cover.getBoundingClientRect();
-          const headerBottom = document.querySelector('.site-header')?.getBoundingClientRect().bottom || 0;
-          if (rect.bottom > innerHeight || rect.top < headerBottom) {
-            cover.scrollIntoView({ block: 'center', behavior: 'instant' });
-          }
+        // Capture the same position the browser will use for the fragment once loading finishes.
+        if (returning && !traversing) {
+          document.getElementById(hash.slice(1))?.scrollIntoView({ block: 'start', behavior: 'instant' });
         }
       }
       const bounds = cover.getBoundingClientRect();
@@ -69,7 +67,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <script type="speculationrules" dangerouslySetInnerHTML={{ __html: JSON.stringify({
           prefetch: [{ where: { selector_matches: '.project-card, .project-return' }, eagerness: 'moderate' }],
         }) }} />
-        <link rel="expect" href="#main" blocking="render" />
+        <link rel="expect" href="#site-footer" blocking="render" />
       </head>
       <body>
         <Shell>{children}</Shell>

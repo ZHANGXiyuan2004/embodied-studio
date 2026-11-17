@@ -59,6 +59,7 @@ function Gallery() {
         {projects.map((project) => (
           <ActionLink
             className="project-card"
+            id={project.slug}
             href={base + '/projects/' + project.slug + '/'}
             key={project.slug}
           >
