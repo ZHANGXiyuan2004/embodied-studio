@@ -8,11 +8,15 @@ test('项目入口翻面时保留两面的尺寸与相邻链接的位置', async
   const neighbor = page.getByRole('link', { name: '分享想法' });
 
   await expect(front).toHaveCSS('opacity', '1');
+  await expect(front).toHaveCSS('transform', 'none');
   const resting = await front.boundingBox();
   const adjacent = await neighbor.boundingBox();
+  expect(adjacent?.width).toEqual(resting?.width);
+  expect(adjacent?.height).toEqual(resting?.height);
   await link.hover();
   await expect(back).toHaveCSS('opacity', '1');
   await expect(front).toHaveCSS('opacity', '0');
+  await expect(back).toHaveCSS('transform', 'none');
   expect(await back.boundingBox()).toEqual(resting);
   expect(await neighbor.boundingBox()).toEqual(adjacent);
 });

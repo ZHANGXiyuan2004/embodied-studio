@@ -1,6 +1,10 @@
 'use client';
 
-import { ArrowRight, ArrowUpRight, BookOpen } from 'lucide-react';
+import { ActionLink } from './action-link';
+import { ArrowRight } from './animate-ui/icons/arrow-right';
+import { ExternalLink } from './animate-ui/icons/external-link';
+import { ClipboardList } from './animate-ui/icons/clipboard-list';
+import { useStudioReducedMotion } from '@/lib/use-reduced-motion';
 import { SplittingText } from './animate-ui/primitives/texts/splitting';
 import {
   Accordion,
@@ -8,7 +12,7 @@ import {
   AccordionTrigger,
   AccordionContent,
 } from './animate-ui/components/radix/accordion';
-import { Reveal, FlipLink, useStudioReducedMotion } from './shell';
+import { Reveal, FlipLink } from './shell';
 import { ArmScene } from './arm-scene';
 import { ProjectImage } from './project-image';
 import { controlTransition, revealTransition } from '@/lib/motion';
@@ -31,13 +35,13 @@ function Gallery() {
           <p className="kicker">Project gallery</p>
           <h2>项目展示</h2>
         </div>
-        <a className="text-link" href={ideasFeed}>
-          浏览社区投稿 <ArrowUpRight size={15} />
-        </a>
+        <ActionLink className="text-link" href={ideasFeed}>
+          浏览社区投稿 <ExternalLink size={15} aria-hidden="true" />
+        </ActionLink>
       </Reveal>
       <div className="card-grid">
         {projects.map((project) => (
-          <a
+          <ActionLink
             className="project-card"
             href={base + '/projects/' + project.slug + '/'}
             key={project.slug}
@@ -57,10 +61,10 @@ function Gallery() {
                 <dd>{project.content}</dd>
               </dl>
               <span className="card-link">
-                查看项目 <ArrowRight size={15} />
+                查看项目 <ArrowRight size={16} aria-hidden="true" />
               </span>
             </div>
-          </a>
+          </ActionLink>
         ))}
       </div>
     </section>
@@ -124,9 +128,9 @@ export function Home() {
             <FlipLink href="#projects" back="进入项目库">
               探索项目
             </FlipLink>
-            <a className="text-link" href={submitIdea}>
-              分享想法 <ArrowUpRight size={16} />
-            </a>
+            <ActionLink className="text-link" href={submitIdea}>
+              分享想法 <ExternalLink size={16} aria-hidden="true" />
+            </ActionLink>
           </div>
         </div>
         <ArmScene />
@@ -144,7 +148,7 @@ export function Home() {
             <AccordionItem key={note.id} value={note.id}>
               <AccordionTrigger className="note-trigger">
                 <span className="note-label">
-                  <BookOpen size={17} />
+                  <ClipboardList size={17} aria-hidden="true" />
                   {note.title}
                 </span>
               </AccordionTrigger>

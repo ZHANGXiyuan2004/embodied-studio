@@ -1,6 +1,6 @@
 // From Animate UI efeb96f; see docs/ANIMATE_UI.md and LICENSE.md.
 import * as React from 'react';
-import { ChevronDownIcon } from 'lucide-react';
+import { ChevronDownIcon } from '@/components/animate-ui/icons/chevron-down';
 
 import {
   Accordion as AccordionPrimitive,
@@ -53,7 +53,7 @@ function AccordionTrigger({
       >
         {children}
         {showArrow && (
-          <ChevronDownIcon className="text-muted-foreground pointer-events-none size-4 shrink-0 translate-y-0.5 transition-transform duration-200" />
+          <ChevronDownIcon aria-hidden="true" className="text-muted-foreground pointer-events-none size-4 shrink-0 translate-y-0.5 transition-transform duration-200" />
         )}
       </AccordionTriggerPrimitive>
     </AccordionHeaderPrimitive>

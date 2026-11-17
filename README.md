@@ -2,7 +2,7 @@
 
 [工作室演示站](https://chashe-embodied-studio.pages.dev/)
 
-项目、成员和指导教师采用占位资料。合作伙伴栏展示智源机器人，并预留其他伙伴位置。首页机械臂是可用鼠标、触屏和方向键操作的原创抓放演示。
+项目、成员和指导教师采用占位资料。合作伙伴栏展示智源机器人，并预留其他伙伴位置。首页使用 Franka Panda 三维模型，可点击方块抓取、再次点击台面放置，也支持触屏和键盘。
 
 ## 本地预览
 
@@ -38,6 +38,6 @@ npx wrangler@4 pages deploy out --project-name chashe-embodied-studio --branch m
 
 工作室对享有权利的原创站点代码、交互 Demo 和文字保留权利。欢迎分享演示链接。企业希望把 Demo 集成进产品时，请在网站页脚打开「许可与署名」，选择「洽谈授权」，说明用途和分发方式，与权利人另行约定。[完整权利声明](LICENSE)
 
-社区投稿按作者在原项目中给出的许可使用。投稿在 GitHub Issues 中公开。工作室 AI 生成的机械臂配图用于场景示意，复用图片或工作室标识请单独联系。引用的论文、数据集与外部项目请查阅原发布方条款。
+社区投稿按作者在原项目中给出的许可使用。投稿在 GitHub Issues 中公开。首页 Franka Panda 模型与其预览图遵循 Apache-2.0 许可。工作室标识的复用请单独联系。引用的论文、数据集与外部项目请查阅原发布方条款。
 
-Animate UI 保留 Elliot Sutton 的 MIT + Commons Clause 条款。Lucide 图标沿用发行包的 ISC 声明，其中源自 Feather 的图标适用 MIT。参考主页的构建配置和工具保留来源说明。更新运行依赖或复制组件时，请同步核对随网页分发的版权及许可全文。[第三方许可汇编](public/third-party-notices.txt) · [Animate UI 来源](docs/ANIMATE_UI.md)
+本站的交互组件与动画图标取自 Animate UI 官方 registry。Animate UI 保留 Elliot Sutton 的 MIT + Commons Clause 条款。Lucide 图标沿用发行包的 ISC 声明，其中源自 Feather 的图标适用 MIT。参考主页的构建配置和工具保留来源说明。更新运行依赖或复制组件时，请同步核对随网页分发的版权及许可全文。[第三方许可汇编](public/third-party-notices.txt) · [Animate UI 来源](docs/ANIMATE_UI.md)

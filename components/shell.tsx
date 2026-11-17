@@ -3,22 +3,32 @@ import {
   useEffect,
   useState,
   useRef,
-  useSyncExternalStore,
   type ReactNode,
   type MouseEvent,
 } from 'react';
-import { motion, MotionConfig } from 'motion/react';
+import { MotionConfig, type MotionStyle } from 'motion/react';
+import { ActionLink } from './action-link';
+import { ArrowRight } from './animate-ui/icons/arrow-right';
+import { ExternalLink } from './animate-ui/icons/external-link';
+import { Layers } from './animate-ui/icons/layers';
+import { ClipboardList } from './animate-ui/icons/clipboard-list';
+import { Link2 } from './animate-ui/icons/link-2';
+import { UsersRound } from './animate-ui/icons/users-round';
+import { ChevronRight } from './animate-ui/icons/chevron-right';
+import { Menu } from './animate-ui/icons/menu';
+import { X } from './animate-ui/icons/x';
+import { Button } from './animate-ui/primitives/buttons/button';
 import {
-  Asterisk,
-  ArrowUpRight,
-  Github,
-  Layers,
-  BookOpen,
-  Handshake,
-  GraduationCap,
-  ChevronRight,
-} from 'lucide-react';
-import { Popover } from 'radix-ui';
+  Highlight,
+  HighlightItem,
+} from './animate-ui/primitives/effects/highlight';
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverPortal,
+  PopoverContent,
+} from './animate-ui/primitives/radix/popover';
+import { motionQuery, useStudioReducedMotion } from '@/lib/use-reduced-motion';
 import { Fade } from './animate-ui/primitives/effects/fade';
 import {
   FlipButton,
@@ -27,20 +37,6 @@ import {
 } from './animate-ui/components/buttons/flip';
 import { base, github } from '@/lib/studio';
 import { controlTransition, revealTransition } from '@/lib/motion';
-
-const motionQuery = '(prefers-reduced-motion: reduce)';
-function subscribeToMotion(notify: () => void) {
-  const preference = window.matchMedia(motionQuery);
-  preference.addEventListener('change', notify);
-  return () => preference.removeEventListener('change', notify);
-}
-export function useStudioReducedMotion() {
-  return useSyncExternalStore(
-    subscribeToMotion,
-    () => window.matchMedia(motionQuery).matches,
-    () => false,
-  );
-}
 
 // Keep native URLs and history while limiting smooth scrolling to intentional section jumps.
 function followSection(event: MouseEvent<HTMLAnchorElement>) {
@@ -102,6 +98,14 @@ export function Reveal({
     </Fade>
   );
 }
+// Return settled faces to normal text rendering after the registry flip finishes.
+function flipFaceTransform(values: MotionStyle, transform: string) {
+  return !Number.parseFloat(String(values.rotateX || 0)) &&
+    !Number.parseFloat(String(values.y || 0))
+    ? 'none'
+    : transform;
+}
+
 export function FlipLink({
   href,
   children,
@@ -116,17 +120,19 @@ export function FlipLink({
     <FlipButton asChild whileFocus="hover" tapScale={1} aria-label={children}>
       <a href={href} className="flip-link" onClick={followSection}>
         <FlipButtonFront
+          transformTemplate={flipFaceTransform}
           transition={reduced ? { duration: 0 } : controlTransition}
         >
           {children}
-          <ArrowUpRight size={16} />
+          <ArrowRight size={16} aria-hidden="true" />
         </FlipButtonFront>
         <FlipButtonBack
+          transformTemplate={flipFaceTransform}
           aria-hidden="true"
           transition={reduced ? { duration: 0 } : controlTransition}
         >
           {back}
-          <ArrowUpRight size={16} />
+          <ArrowRight size={16} aria-hidden="true" />
         </FlipButtonBack>
       </a>
     </FlipButton>
@@ -134,13 +140,14 @@ export function FlipLink({
 }
 const nav = [
   { id: 'projects', title: '项目展示', icon: Layers },
-  { id: 'notes', title: '学习笔记', icon: BookOpen },
-  { id: 'partners', title: '合作伙伴', icon: Handshake },
-  { id: 'mentors', title: '指导教师', icon: GraduationCap },
+  { id: 'notes', title: '学习笔记', icon: ClipboardList },
+  { id: 'partners', title: '合作伙伴', icon: Link2 },
+  { id: 'mentors', title: '指导教师', icon: UsersRound },
 ];
 
 function MobileNav({ active }: { active: string }) {
   const [open, setOpen] = useState(false);
+  const reduced = useStudioReducedMotion();
   const destination = useRef<string | null>(null);
   const panel = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -153,63 +160,74 @@ function MobileNav({ active }: { active: string }) {
   }, []);
   return (
     <div className="mobile-navigation">
-      <Popover.Root open={open} onOpenChange={setOpen}>
-        <Popover.Trigger asChild>
-          <button
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            hoverScale={1}
+            tapScale={reduced ? 1 : 0.97}
             type="button"
             className="menu-button"
             aria-label={open ? '收起菜单' : '展开菜单'}
           >
-            <span aria-hidden="true" className="menu-glyph" />
-          </button>
-        </Popover.Trigger>
-        <Popover.Content
-          align="end"
-          sideOffset={9}
-          collisionPadding={12}
-          className="mobile-nav-panel"
-          ref={panel}
-          aria-label="网站导航"
-          onOpenAutoFocus={(event) => {
-            event.preventDefault();
-            panel.current?.querySelector('a')?.focus({ preventScroll: true });
-          }}
-          onCloseAutoFocus={(event) => {
-            if (!destination.current) return;
-            event.preventDefault();
-            document
-              .getElementById(destination.current)
-              ?.focus({ preventScroll: true });
-            destination.current = null;
-          }}
-        >
-          <nav aria-label="主导航">
-            {nav.map(({ id, title, icon: Icon }) => (
-              <a
-                key={id}
-                href={base + '/#' + id}
-                aria-current={active === id ? 'location' : undefined}
-                onClick={(event) => {
-                  if (
-                    event.metaKey ||
-                    event.ctrlKey ||
-                    event.shiftKey ||
-                    event.altKey
-                  )
-                    return;
-                  destination.current = id;
-                  followSection(event);
-                  setOpen(false);
-                }}
-              >
-                <Icon size={17} aria-hidden="true" />
-                {title}
-                <ChevronRight size={14} aria-hidden="true" />
-              </a>
-            ))}
-          </nav>
-        </Popover.Content>
-      </Popover.Root>
+            {reduced && open ? (
+              <X size={20} aria-hidden="true" />
+            ) : (
+              <Menu size={20} aria-hidden="true" animate={open && !reduced} />
+            )}
+          </Button>
+        </PopoverTrigger>
+        <PopoverPortal>
+          <PopoverContent
+            transition={reduced ? { duration: 0 } : controlTransition}
+            initial={{ opacity: 0, scale: reduced ? 1 : 0.97 }}
+            exit={{ opacity: 0, scale: reduced ? 1 : 0.97 }}
+            align="end"
+            sideOffset={9}
+            collisionPadding={12}
+            className="mobile-nav-panel"
+            ref={panel}
+            aria-label="网站导航"
+            onOpenAutoFocus={(event) => {
+              event.preventDefault();
+              panel.current?.querySelector('a')?.focus({ preventScroll: true });
+            }}
+            onCloseAutoFocus={(event) => {
+              if (!destination.current) return;
+              event.preventDefault();
+              document
+                .getElementById(destination.current)
+                ?.focus({ preventScroll: true });
+              destination.current = null;
+            }}
+          >
+            <nav aria-label="主导航">
+              {nav.map(({ id, title, icon: Icon }) => (
+                <a
+                  key={id}
+                  href={base + '/#' + id}
+                  aria-current={active === id ? 'location' : undefined}
+                  onClick={(event) => {
+                    if (
+                      event.metaKey ||
+                      event.ctrlKey ||
+                      event.shiftKey ||
+                      event.altKey
+                    )
+                      return;
+                    destination.current = id;
+                    followSection(event);
+                    setOpen(false);
+                  }}
+                >
+                  <Icon size={17} aria-hidden="true" />
+                  {title}
+                  <ChevronRight size={14} aria-hidden="true" />
+                </a>
+              ))}
+            </nav>
+          </PopoverContent>
+        </PopoverPortal>
+      </Popover>
     </div>
   );
 }
@@ -285,7 +303,7 @@ export function Shell({ children }: { children: ReactNode }) {
             aria-label="叉社具身工作室首页"
           >
             <span className="brand-mark">
-              <Asterisk size={29} strokeWidth={2.5} />
+              <img src={base + '/icon.png'} alt="" width={33} height={33} />
             </span>
             <span>
               叉社<span className="brand-en">Embodied Studio</span>
@@ -302,46 +320,50 @@ export function Shell({ children }: { children: ReactNode }) {
               }}
               className="nav"
             >
-              {nav.map(({ id, title }) => (
-                <a
-                  key={id}
-                  href={base + '/#' + id}
-                  aria-current={active === id ? 'location' : undefined}
-                  onPointerEnter={(event) => {
-                    if (event.pointerType !== 'touch') setHovered(id);
-                  }}
-                  onFocus={(event) => {
-                    if (event.currentTarget.matches(':focus-visible'))
-                      setFocused(id);
-                  }}
-                  onClick={(event) => {
-                    followSection(event);
-                    setFocused('');
-                    setHovered('');
-                  }}
-                >
-                  {highlighted === id && (
-                    <motion.span
-                      aria-hidden="true"
-                      className="nav-highlight"
-                      layoutId="studio-nav-highlight"
-                      initial={false}
-                      transition={reduced ? { duration: 0 } : controlTransition}
-                    />
-                  )}
-                  {title}
-                </a>
-              ))}
+              <Highlight
+                mode="parent"
+                controlledItems
+                value={highlighted || null}
+                click={false}
+                transition={reduced ? { duration: 0 } : controlTransition}
+                exitDelay={0}
+                boundsOffset={{ top: 3, height: -6 }}
+                containerClassName="nav-items"
+                className="nav-highlight"
+              >
+                {nav.map(({ id, title, icon: Icon }) => (
+                  <HighlightItem key={id} asChild value={id}>
+                    <a
+                      href={base + '/#' + id}
+                      aria-current={active === id ? 'location' : undefined}
+                      onPointerEnter={(event) => {
+                        if (event.pointerType !== 'touch') setHovered(id);
+                      }}
+                      onFocus={(event) => {
+                        if (event.currentTarget.matches(':focus-visible'))
+                          setFocused(id);
+                      }}
+                      onClick={(event) => {
+                        followSection(event);
+                        setFocused('');
+                        setHovered('');
+                      }}
+                    >
+                      <Icon size={15} aria-hidden="true" />
+                      {title}
+                    </a>
+                  </HighlightItem>
+                ))}
+              </Highlight>
             </nav>
-            <a
+            <ActionLink
               className="github-link"
               href={github}
               aria-label="工作室 GitHub 仓库"
             >
-              <Github size={18} />
               <span>GitHub</span>
-              <ArrowUpRight size={13} />
-            </a>
+              <ExternalLink size={14} aria-hidden="true" />
+            </ActionLink>
             <MobileNav active={active} />
           </div>
         </div>
@@ -351,15 +373,15 @@ export function Shell({ children }: { children: ReactNode }) {
         <span>© 2026 叉社具身工作室</span>
         <nav aria-label="页脚导航">
           <a href={base + '/license/'}>许可与署名</a>
-          <a href={github}>
-            GitHub 仓库 <ArrowUpRight size={13} />
-          </a>
+          <ActionLink href={github}>
+            GitHub 仓库 <ExternalLink size={14} aria-hidden="true" />
+          </ActionLink>
         </nav>
       </footer>
       <noscript>
         <style>
           {
-            '@media(max-width:700px){.mobile-navigation{display:none}.site-header .nav{display:flex;flex-wrap:wrap}.header-inner{height:auto;flex-wrap:wrap;padding-block:8px}.header-right{flex-wrap:wrap}.header-right .github-link{width:32px}}.reveal,.hero-title span{opacity:1!important;transform:none!important}[data-slot="tabs-contents"]{height:auto!important}[data-slot="tabs-contents"]>div{display:block!important;transform:none!important}[data-slot="tabs-list"]{display:none!important}'
+            '@media(max-width:700px){.mobile-navigation{display:none}.site-header .nav{display:flex;flex-wrap:wrap}.header-inner{height:auto;flex-wrap:wrap;padding-block:8px}.header-right,.nav-items{flex-wrap:wrap;max-width:100%}}.reveal,.hero-title span{opacity:1!important;transform:none!important}[data-slot="tabs-contents"]{height:auto!important}[data-slot="tabs-contents"]>div{display:block!important;transform:none!important}[data-slot="tabs-list"]{display:none!important}'
           }
         </style>
       </noscript>

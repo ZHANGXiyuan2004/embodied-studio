@@ -1,184 +1,253 @@
-import {
-  cubeFloor,
-  drawArm,
-  graspOffset,
-  rest,
-  stage,
-  stations,
-  type Point,
-} from './drawing';
+import { MathUtils, Vector3 } from 'three';
+import { createStage, cubeHalf, rest, second, start } from './drawing';
 
-const clamp = (v: number, min: number, max: number) =>
-  Math.min(max, Math.max(min, v));
-const between = (a: number, b: number, t: number) => a + (b - a) * t;
+export type ArmPhase =
+  | 'ready'
+  | 'picking'
+  | 'holding'
+  | 'placing'
+  | 'demo'
+  | 'complete';
+type Waypoint = {
+  at: number;
+  position: Vector3;
+  grip: number;
+  load: 'table' | 'held' | 'placed';
+};
+const above = (p: Vector3, distance: number) => p.clone().setZ(p.z + distance);
+const pose = (
+  at: number,
+  position: Vector3,
+  grip: number,
+  load: Waypoint['load'],
+): Waypoint => ({ at, position: position.clone(), grip, load });
 
-export function attachArm(
+export async function attachArm(
   canvas: HTMLCanvasElement,
+  model: ArrayBuffer,
   reduced: boolean,
-  announce: (running: boolean) => void,
+  onChange: (phase: ArmPhase) => void,
 ) {
-  const context = canvas.getContext('2d');
-  if (!context) return;
-  let wrist = { ...rest },
-    target = { ...rest };
-  let station = 0,
-    grip = 0;
-  let part = { x: stations[station], y: cubeFloor };
-  let request = 0,
+  const stage = await createStage(canvas, model);
+  const tip = rest.clone(),
+    target = rest.clone(),
+    part = start.clone(),
+    landing = start.clone();
+  let phase: ArmPhase = 'ready';
+  let grip = 0,
+    request = 0,
     lastFrame = 0;
-  type Pose = { time: number; x: number; y: number; grip: number };
-  let run: { start: number; poses: Pose[] } | null = null;
-
+  let queuedDrop: Vector3 | null = null;
+  let flight: {
+    start: number;
+    poses: Waypoint[];
+    origin: Vector3;
+    destination: Vector3;
+    finish: () => void;
+  } | null = null;
+  function change(value: ArmPhase) {
+    phase = value;
+    onChange(value);
+  }
   function redraw() {
-    if (context) drawArm(context, wrist, part, grip);
-  }
-  function resize() {
-    const box = canvas.getBoundingClientRect();
-    if (!box.width || !box.height) return;
-    const scale = Math.min(window.devicePixelRatio || 1, 2);
-    const width = Math.round(box.width * scale),
-      height = Math.round(box.height * scale);
-    if (canvas.width !== width || canvas.height !== height) {
-      canvas.width = width;
-      canvas.height = height;
-    }
-    context!.setTransform(
-      width / stage.width,
-      0,
-      0,
-      height / stage.height,
-      (-stage.x * width) / stage.width,
-      (-stage.y * height) / stage.height,
+    stage.draw(
+      tip,
+      part,
+      grip,
+      ['picking', 'holding', 'placing'].includes(phase) ? landing : null,
     );
-    redraw();
-  }
-
-  function tick(now: number) {
-    request = 0;
-    const delta = Math.min(64, now - lastFrame);
-    lastFrame = now;
-    if (run) {
-      const elapsed = Math.max(0, now - run.start);
-      const { poses } = run;
-      const stopIndex = poses.findIndex((pose) => pose.time > elapsed);
-      if (stopIndex < 0) {
-        station = 1 - station;
-        part = { x: stations[station], y: cubeFloor };
-        wrist = target = { x: part.x, y: cubeFloor - graspOffset - 43 };
-        grip = 0;
-        run = null;
-        announce(false);
-      } else {
-        const start = poses[stopIndex - 1],
-          end = poses[stopIndex];
-        const t = clamp((elapsed - start.time) / (end.time - start.time), 0, 1);
-        const eased = t * t * (3 - 2 * t);
-        wrist = {
-          x: between(start.x, end.x, eased),
-          y: between(start.y, end.y, eased),
-        };
-        grip = between(start.grip, end.grip, eased);
-        // Derive the workpiece from the timeline even if a background tab skipped whole phases.
-        if (stopIndex >= 7) part = { x: stations[1 - station], y: cubeFloor };
-        else if (stopIndex >= 4)
-          part = { x: wrist.x, y: wrist.y + graspOffset };
-        queue();
-      }
-    } else {
-      const t = reduced ? 1 : 1 - Math.exp(-delta / 66);
-      wrist = {
-        x: between(wrist.x, target.x, t),
-        y: between(wrist.y, target.y, t),
-      };
-      if (Math.hypot(wrist.x - target.x, wrist.y - target.y) > 0.1) queue();
-      else wrist = { ...target };
-    }
-    redraw();
   }
   function queue() {
     if (!request) request = requestAnimationFrame(tick);
   }
-  function pointTo(x: number, y: number) {
-    if (run) return;
-    target = {
-      x: clamp(x, 205, 453),
-      y: clamp(y, 108, cubeFloor - graspOffset),
+  function tick(now: number) {
+    request = 0;
+    const delta = Math.min(64, now - lastFrame);
+    lastFrame = now;
+    if (flight) {
+      const { poses, origin, destination, finish } = flight;
+      const last = poses[poses.length - 1];
+      const elapsed = reduced
+        ? last.at
+        : Math.min(last.at, Math.max(0, now - flight.start));
+      const index = poses.findIndex((p) => p.at > elapsed);
+      const a = index < 0 ? last : poses[index - 1],
+        b = index < 0 ? last : poses[index];
+      const t = a === b ? 1 : MathUtils.smoothstep(elapsed, a.at, b.at);
+      tip.lerpVectors(a.position, b.position, t);
+      grip = MathUtils.lerp(a.grip, b.grip, t);
+      part.copy(
+        a.load === 'held' ? tip : a.load === 'placed' ? destination : origin,
+      );
+      if (elapsed === last.at) {
+        flight = null;
+        target.copy(tip);
+        finish();
+      } else queue();
+    } else {
+      tip.lerp(target, reduced ? 1 : 1 - Math.exp(-delta / 60));
+      if (tip.distanceToSquared(target) > 0.000001) queue();
+      else tip.copy(target);
+      if (phase === 'holding') part.copy(tip);
+    }
+    redraw();
+  }
+  function play(poses: Waypoint[], destination: Vector3, finish: () => void) {
+    flight = {
+      start: performance.now(),
+      poses,
+      origin: part.clone(),
+      destination: destination.clone(),
+      finish,
     };
     queue();
   }
-  function pointAtEvent(e: PointerEvent) {
-    const box = canvas.getBoundingClientRect();
-    pointTo(
-      stage.x + ((e.clientX - box.left) / box.width) * stage.width,
-      stage.y +
-        ((e.clientY - box.top) / box.height) * stage.height -
-        graspOffset,
-    );
+  function finishPlacement() {
+    change('complete');
   }
-  function track(e: PointerEvent) {
-    if (!reduced && e.pointerType !== 'touch') pointAtEvent(e);
-  }
-  // A touch scroll cancels the pointer; a completed tap sets a target.
-  function tap(e: PointerEvent) {
-    if (reduced || e.pointerType === 'touch') pointAtEvent(e);
-  }
-  function keys(e: KeyboardEvent) {
-    const steps: Record<string, [number, number]> = {
-      ArrowLeft: [-16, 0],
-      ArrowRight: [16, 0],
-      ArrowUp: [0, -16],
-      ArrowDown: [0, 16],
-    };
-    if (!steps[e.key]) return;
-    e.preventDefault();
-    const [x, y] = steps[e.key];
-    pointTo(target.x + x, target.y + y);
-  }
-  function demo() {
-    if (run) return;
-    const from = stations[station],
-      to = stations[1 - station];
-    const down = cubeFloor - graspOffset;
-    if (reduced) {
-      station = 1 - station;
-      part = { x: to, y: cubeFloor };
-      wrist = target = { x: to, y: down - 43 };
-      redraw();
-      announce(false);
+  function place(point: Vector3) {
+    if (phase === 'picking') {
+      queuedDrop = point.clone();
       return;
     }
-    run = {
-      start: performance.now(),
-      poses: [
-        { time: 0, ...wrist, grip: 0 },
-        { time: 410, x: from, y: down - 38, grip: 0 },
-        { time: 740, x: from, y: down, grip: 0 },
-        { time: 970, x: from, y: down, grip: 1 },
-        { time: 1300, x: from, y: down - 60, grip: 1 },
-        { time: 1820, x: to, y: down - 60, grip: 1 },
-        { time: 2150, x: to, y: down, grip: 1 },
-        { time: 2370, x: to, y: down, grip: 0 },
-        { time: 2680, x: to, y: down - 43, grip: 0 },
+    if (phase !== 'holding') return;
+    landing.copy(point);
+    change('placing');
+    play(
+      [
+        pose(0, tip, 1, 'held'),
+        pose(230, above(point, 0.1), 1, 'held'),
+        pose(475, point, 1, 'placed'),
+        pose(630, point, 0, 'placed'),
+        pose(850, above(point, 0.11), 0, 'placed'),
       ],
-    };
-    announce(true);
+      point,
+      finishPlacement,
+    );
+  }
+  function pick() {
+    if (phase !== 'ready' && phase !== 'complete') return;
+    queuedDrop = null;
+    landing.copy(part);
+    change('picking');
+    play(
+      [
+        pose(0, tip, 0, 'table'),
+        pose(240, above(part, 0.085), 0, 'table'),
+        pose(475, part, 0, 'table'),
+        pose(620, part, 1, 'held'),
+        pose(850, above(part, 0.13), 1, 'held'),
+      ],
+      part,
+      () => {
+        change('holding');
+        if (queuedDrop) {
+          const point = queuedDrop;
+          queuedDrop = null;
+          place(point);
+        } else {
+          target.copy(above(landing, 0.13));
+          queue();
+        }
+      },
+    );
+  }
+  function demo() {
+    if (phase !== 'ready' && phase !== 'complete') return;
+    const to =
+      part.distanceToSquared(start) < part.distanceToSquared(second)
+        ? second
+        : start;
+    change('demo');
+    play(
+      [
+        pose(0, tip, 0, 'table'),
+        pose(340, above(part, 0.09), 0, 'table'),
+        pose(630, part, 0, 'table'),
+        pose(850, part, 1, 'held'),
+        pose(1140, above(part, 0.14), 1, 'held'),
+        pose(1600, above(to, 0.14), 1, 'held'),
+        pose(1900, to, 1, 'placed'),
+        pose(2110, to, 0, 'placed'),
+        pose(2410, above(to, 0.12), 0, 'placed'),
+      ],
+      to,
+      finishPlacement,
+    );
+  }
+  function aim(point: Vector3) {
+    landing.copy(point);
+    if (phase !== 'picking') target.copy(above(landing, 0.13));
     queue();
   }
-
+  function track(event: PointerEvent) {
+    if (
+      event.pointerType === 'touch' ||
+      phase === 'demo' ||
+      phase === 'placing' ||
+      queuedDrop
+    )
+      return;
+    if (reduced && phase !== 'holding') return;
+    const point = stage.floorAt(event);
+    if (point) aim(point);
+  }
+  function click(event: MouseEvent) {
+    if (event.button !== 0) return;
+    const point = stage.floorAt(event);
+    if (point) place(point);
+  }
+  function keys(event: KeyboardEvent) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      if (event.repeat) return;
+      if (phase === 'holding' || phase === 'picking') place(landing);
+      else pick();
+      return;
+    }
+    const delta: Record<string, [number, number]> = {
+      ArrowLeft: [-0.025, 0],
+      ArrowRight: [0.025, 0],
+      ArrowUp: [0, 0.025],
+      ArrowDown: [0, -0.025],
+    };
+    const step = delta[event.key];
+    if (!step) return;
+    event.preventDefault();
+    if (flight) return;
+    aim(
+      new Vector3(
+        MathUtils.clamp(landing.x + step[0], 0.3, 0.62),
+        MathUtils.clamp(landing.y + step[1], -0.24, 0.24),
+        cubeHalf,
+      ),
+    );
+  }
+  function resize() {
+    stage.resize();
+    redraw();
+  }
   resize();
   const observer = new ResizeObserver(resize);
   observer.observe(canvas);
-  canvas.addEventListener('pointermove', track);
-  canvas.addEventListener('pointerup', tap);
+  const panel = canvas.parentElement!;
+  panel.addEventListener('pointermove', track);
+  canvas.addEventListener('click', click);
   canvas.addEventListener('keydown', keys);
   return {
+    pick,
     demo,
+    setReducedMotion(value: boolean) {
+      reduced = value;
+      queue();
+    },
     destroy() {
       cancelAnimationFrame(request);
       observer.disconnect();
-      canvas.removeEventListener('pointermove', track);
-      canvas.removeEventListener('pointerup', tap);
+      panel.removeEventListener('pointermove', track);
+      canvas.removeEventListener('click', click);
       canvas.removeEventListener('keydown', keys);
+      stage.destroy();
     },
   };
 }

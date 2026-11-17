@@ -1,88 +1,144 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { LoaderCircle, Play } from 'lucide-react';
+import { Button } from './animate-ui/primitives/buttons/button';
+import { LoaderCircle } from './animate-ui/icons/loader-circle';
+import { Play } from './animate-ui/icons/play';
 import { base } from '@/lib/studio';
-import { useStudioReducedMotion } from './shell';
-import { attachArm } from './arm/controller';
-import { stage } from './arm/drawing';
+import { motionQuery, useStudioReducedMotion } from '@/lib/use-reduced-motion';
+import type { ArmPhase, attachArm } from './arm/controller';
+
+const feedback: Record<ArmPhase, string> = {
+  ready: '点击橙色方块抓取。',
+  picking: '夹爪正在抓取方块…',
+  holding: '已抓取。移动鼠标预览落点，再点台面放置。',
+  placing: '正在放置方块…',
+  demo: '正在演示抓取和放置…',
+  complete: '放置完成！再次点击方块可继续。',
+};
 
 export function ArmScene() {
   const ref = useRef<HTMLCanvasElement>(null);
-  const controller = useRef<ReturnType<typeof attachArm>>(undefined);
+  const controller = useRef<Awaited<ReturnType<typeof attachArm>>>(null);
   const [ready, setReady] = useState(false);
-  const [running, setRunning] = useState(false);
-  const [announcement, setAnnouncement] = useState('');
+  const [phase, setPhase] = useState<ArmPhase>('ready');
+  const [failed, setFailed] = useState(false);
   const reduced = useStudioReducedMotion();
   useEffect(() => {
     if (!ref.current) return;
-    controller.current = attachArm(ref.current, reduced, (busy) => {
-      setRunning(busy);
-      setAnnouncement(busy ? '机械臂开始抓放。' : '方块已移到另一处放置点。');
-    });
-    setReady(!!controller.current);
-    setRunning(false);
-    return () => controller.current?.destroy();
-  }, [reduced]);
-
+    const canvas = ref.current,
+      abort = new AbortController();
+    async function load() {
+      try {
+        const [{ attachArm }, model] = await Promise.all([
+          import('./arm/controller'),
+          fetch(base + '/franka-panda.glb', { signal: abort.signal }).then(
+            (r) => {
+              if (!r.ok) throw Error('Model could not be loaded');
+              return r.arrayBuffer();
+            },
+          ),
+        ]);
+        if (abort.signal.aborted) return;
+        const arm = await attachArm(
+          canvas,
+          model,
+          matchMedia(motionQuery).matches,
+          setPhase,
+        );
+        if (abort.signal.aborted) {
+          arm.destroy();
+          return;
+        }
+        controller.current = arm;
+        setReady(true);
+      } catch {
+        if (!abort.signal.aborted) setFailed(true);
+      }
+    }
+    void load();
+    return () => {
+      abort.abort();
+      controller.current?.destroy();
+      controller.current = null;
+    };
+  }, []);
+  useEffect(() => controller.current?.setReducedMotion(reduced), [reduced]);
+  const canPick = phase === 'ready' || phase === 'complete';
   return (
     <figure className="arm-scene">
       <div
         className="scene-display"
-        style={{ aspectRatio: stage.width / stage.height }}
+        data-phase={phase}
+        style={{ aspectRatio: '1.56' }}
       >
         <img
           className="scene-poster"
-          src={base + '/scara-rest.webp'}
-          alt="浅色双关节桌面机械臂张开夹爪，准备搬运橙色方块"
+          src={base + '/franka-panda.webp'}
+          alt="Franka Panda 七轴机械臂、双指夹爪与台面上的橙色方块"
           hidden={ready}
-          width={stage.width}
-          height={stage.height}
+          fetchPriority="high"
+          width={1894}
+          height={1214}
         />
         <canvas
           ref={ref}
-          width={stage.width}
-          height={stage.height}
           tabIndex={ready ? 0 : -1}
           role="group"
           aria-hidden={!ready}
-          aria-label="交互机械臂，使用方向键移动夹爪"
-          aria-describedby="arm-help"
+          aria-label="Franka 抓放工作台"
+          aria-describedby="arm-help arm-keys"
         />
+        {ready && canPick && (
+          <button
+            className="cube-target"
+            type="button"
+            aria-label="抓取橙色方块"
+            onClick={(event) => {
+              if (!event.detail) ref.current?.focus({ preventScroll: true });
+              controller.current?.pick();
+            }}
+          />
+        )}
       </div>
       <figcaption className="scene-caption">
         <div>
-          <span className="scene-heading">机械臂抓放实验</span>
-          <span id="arm-help" hidden={!ready}>
-            <span className="pointer-tip">
-              {reduced ? '点击或轻触定位' : '移动指针或轻触定位'}
-            </span>
-            <span className="key-tip">方向键移动夹爪</span>
+          <span className="scene-heading">Franka Panda 抓放实验</span>
+          <span
+            id="arm-help"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+            className={phase === 'complete' ? 'placed' : undefined}
+          >
+            {ready
+              ? feedback[phase]
+              : failed
+                ? '当前浏览器无法加载三维演示。'
+                : ''}
+          </span>
+          <span id="arm-keys" className="sr-only">
+            按回车抓取，方向键选择落点，再按回车放置。
           </span>
         </div>
         <div className="scene-controls" hidden={!ready}>
-          <button
+          <Button
             type="button"
             className="scene-play"
-            aria-disabled={running}
+            hoverScale={1}
+            tapScale={reduced || !canPick ? 1 : 0.97}
+            aria-disabled={!canPick}
             onClick={() => controller.current?.demo()}
           >
-            {running ? (
-              <LoaderCircle
-                className="running-icon"
-                size={14}
-                aria-hidden="true"
-              />
+            {phase === 'demo' ? (
+              <LoaderCircle animate={!reduced} size={15} aria-hidden="true" />
             ) : (
-              <Play size={14} aria-hidden="true" />
+              <Play size={15} aria-hidden="true" />
             )}
-            {running ? '抓放中…' : '演示抓放'}
-          </button>
+            {phase === 'demo' ? '抓放中…' : '演示抓放'}
+          </Button>
         </div>
       </figcaption>
-      <span className="sr-only" role="status">
-        {announcement}
-      </span>
     </figure>
   );
 }

@@ -1,5 +1,7 @@
 import { notFound } from 'next/navigation';
-import { ArrowLeft, ArrowUpRight } from 'lucide-react';
+import { ActionLink } from '@/components/action-link';
+import { ArrowLeft } from '@/components/animate-ui/icons/arrow-left';
+import { ExternalLink } from '@/components/animate-ui/icons/external-link';
 import { base, projects, collaborate } from '@/lib/studio';
 import { ProjectImage } from '@/components/project-image';
 
@@ -18,10 +20,10 @@ export default async function ProjectPage({ params }: Props) {
   if (!p) notFound();
   return (
     <main id="main" className="wrap inner-page">
-      <a className="back" href={base + '/#projects'}>
-        <ArrowLeft size={15} />
+      <ActionLink className="back" href={base + '/#projects'}>
+        <ArrowLeft size={16} aria-hidden="true" />
         返回项目展示
-      </a>
+      </ActionLink>
       <div className="project-detail-grid">
         <div className="detail-cover" data-cover-peer={base + '/'}>
           <ProjectImage project={p} />
@@ -37,9 +39,9 @@ export default async function ProjectPage({ params }: Props) {
             <dt>项目内容</dt>
             <dd>{p.content}</dd>
           </dl>
-          <a className="solid" href={collaborate(p.title)}>
-            交流想法 <ArrowUpRight size={14} />
-          </a>
+          <ActionLink className="solid" href={collaborate(p.title)}>
+            交流想法 <ExternalLink size={15} aria-hidden="true" />
+          </ActionLink>
         </div>
       </div>
     </main>

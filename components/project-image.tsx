@@ -1,4 +1,4 @@
-import { Image as ImageIcon } from 'lucide-react';
+import { GalleryHorizontal } from './animate-ui/icons/gallery-horizontal';
 import { base, type Project } from '@/lib/studio';
 
 export function ProjectImage({ project }: { project: Project }) {
@@ -14,7 +14,12 @@ export function ProjectImage({ project }: { project: Project }) {
       role="img"
       aria-label={project.title + '的图片预留位'}
     >
-      <ImageIcon size={25} strokeWidth={1.2} aria-hidden="true" />
+      <GalleryHorizontal
+        animate={false}
+        size={26}
+        strokeWidth={1.5}
+        aria-hidden="true"
+      />
       <span>项目图片预留位</span>
     </div>
   );
