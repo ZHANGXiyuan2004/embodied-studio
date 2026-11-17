@@ -14,6 +14,15 @@ export const metadata: Metadata = {
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="zh-CN">
+      <head>
+        {/* Cross-document transitions need the opt-in before the first paint, even on a cold CDN load. */}
+        <style>
+          {
+            '@media (prefers-reduced-motion: no-preference) { @view-transition { navigation: auto; } }'
+          }
+        </style>
+        <link rel="expect" href="#main" blocking="render" />
+      </head>
       <body>
         <Shell>{children}</Shell>
       </body>

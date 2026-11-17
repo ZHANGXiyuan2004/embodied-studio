@@ -1234,9 +1234,6 @@ dialog .actions {
   text-underline-offset: 5px;
 }
 
-@view-transition {
-  navigation: auto;
-}
 @media (prefers-reduced-motion: no-preference) {
   .site-header {
     view-transition-name: studio-header;
