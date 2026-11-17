@@ -133,11 +133,11 @@ figure {
   flex: none;
 }
 .brand-en {
-  margin-left: 12px;
-  border-left: 1px solid #c9cbc3;
-  padding-left: 12px;
-  font: 11px var(--mono);
-  letter-spacing: -0.02em;
+  display: block;
+  margin-top: 1px;
+  color: var(--muted);
+  font: 10px/1.2 var(--mono);
+  letter-spacing: 0;
 }
 .header-right {
   gap: 29px;
@@ -154,6 +154,7 @@ figure {
 .nav a {
   display: inline-flex;
   align-items: center;
+  white-space: nowrap;
   gap: 6px;
   color: var(--muted);
   position: relative;
@@ -185,10 +186,10 @@ figure {
 }
 .hero {
   display: grid;
-  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  grid-template-columns: minmax(0, 0.74fr) minmax(0, 1.26fr);
   align-items: center;
-  gap: clamp(32px, 6vw, 86px);
-  padding: clamp(38px, 4vw, 62px) 0;
+  gap: clamp(20px, 2.2vw, 32px);
+  padding: clamp(32px, 3.4vw, 50px) 0;
 }
 .kicker {
   display: flex;
@@ -211,17 +212,23 @@ figure {
   container-type: inline-size;
 }
 .hero-kicker {
-  margin-bottom: 20px;
+  margin-bottom: 14px;
 }
 .hero-title {
-  font-size: clamp(26px, 14cqi, 68px);
+  font-size: clamp(26px, 14.7cqi, 68px);
   white-space: nowrap;
   font-weight: 640;
   letter-spacing: -0.072em;
   line-height: 1.09;
   margin: 0 0 20px -0.038em;
 }
-.hero-actions,
+.studio-intro {
+  max-width: 27em;
+  color: var(--muted);
+  font-size: clamp(14px, 1.2vw, 16px);
+  line-height: 1.85;
+  text-wrap: pretty;
+}
 .actions {
   display: flex;
   align-items: center;
@@ -273,22 +280,77 @@ figure {
 .hero-actions {
   display: inline-grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 22px;
+  gap: 10px;
+  margin-top: 24px;
 }
 .hero-action {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  justify-content: flex-start;
-  gap: 8px;
+  justify-content: center;
   min-height: 44px;
-  padding: 0;
-  border: 0;
+  padding: 0 clamp(10px, 1.2vw, 18px);
+  border-radius: var(--control-radius);
   background: transparent;
   color: var(--ink);
   font: inherit;
   font-size: 14px;
   font-weight: 550;
   white-space: nowrap;
+}
+.hero-action::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--action-border, #c9ccc2);
+  border-radius: inherit;
+  pointer-events: none;
+}
+.lift-action {
+  --action-rise: 0px;
+  --underline-scale: 0;
+}
+.action-label {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 1.5;
+}
+.action-label::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 -3px;
+  height: 1px;
+  background: var(--accent-ink);
+  transform: scaleX(var(--underline-scale));
+  transform-origin: center;
+  transition: transform var(--control-time) var(--ease-studio);
+}
+/* Move the visible parts while keeping the pointer target stationary. */
+.hero-action::before,
+.lift-action .action-label,
+.lift-action > img {
+  translate: 0 var(--action-rise);
+  transition: translate var(--control-time) var(--ease-studio),
+    border-color var(--control-time) var(--ease-studio);
+}
+.lift-action:focus-visible {
+  --action-rise: -3px;
+  --underline-scale: 1;
+  --action-border: var(--focus);
+}
+@media (hover: hover) {
+  .lift-action:hover {
+    --action-rise: -3px;
+    --underline-scale: 1;
+    --action-border: var(--focus);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lift-action:is(:hover, :focus-visible) {
+    --action-rise: 0px;
+  }
 }
 .scene-play {
   display: inline-flex;
@@ -332,6 +394,8 @@ figure {
   position: relative;
   min-width: 0;
   overflow: clip;
+  border: 1px solid var(--line);
+  border-radius: 8px;
 }
 .scene-display,
 .image-placeholder {
@@ -343,6 +407,7 @@ figure {
 .scene-display {
   position: relative;
   isolation: isolate;
+  aspect-ratio: 1.72;
   background: transparent;
 }
 .scene-display::before {
@@ -355,6 +420,7 @@ figure {
 }
 .scene-display canvas,
 .scene-poster {
+  object-fit: contain;
   display: block;
   width: 100%;
   position: absolute;
@@ -394,8 +460,8 @@ figure {
 }
 .scene-play {
   position: absolute;
-  right: 0;
-  bottom: 0;
+  right: 5px;
+  bottom: 5px;
   width: 44px;
   height: 44px;
 }
@@ -831,9 +897,6 @@ dialog .actions {
     gap: 20px;
     padding: 32px 0;
   }
-  .brand-en {
-    display: none;
-  }
   .card-copy {
     padding: 14px 0 6px;
   }
@@ -850,12 +913,9 @@ dialog .actions {
     gap: 0;
   }
 }
-@media (max-width: 700px) {
+@media (max-width: 800px) {
   html {
     scroll-padding-top: 76px;
-  }
-  .wrap {
-    width: calc(100% - 36px);
   }
   .brand {
     gap: 8px;
@@ -932,10 +992,18 @@ dialog .actions {
   .mobile-nav-panel a svg:last-child {
     margin-left: auto;
   }
+}
+@media (max-width: 700px) {
+  .wrap {
+    width: calc(100% - 36px);
+  }
   .hero {
     grid-template-columns: 1fr;
     gap: 23px;
     padding: 32px 0 28px;
+  }
+  .scene-display {
+    aspect-ratio: 1.56;
   }
   .hero-title {
     margin-bottom: 14px;
@@ -1058,6 +1126,12 @@ dialog .actions {
   }
 }
 @media (max-width: 370px) {
+  .header-right .github-link {
+    padding-inline: 2px;
+  }
+  .header-right .github-link svg {
+    display: none;
+  }
   .note-trigger small {
     display: block;
     margin-bottom: 5px;
@@ -1196,61 +1270,40 @@ dialog .actions {
 .detail-info .solid {
   margin-top: 2px;
 }
-.directories {
-  display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
-  gap: 32px;
+.directory .section-head:only-child {
+  margin-bottom: 0;
 }
 .people-grid {
   list-style: none;
   padding: 0;
   margin: 0;
   display: grid;
-  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+  gap: 28px 22px;
 }
 .people-grid > li {
   font-size: 18px;
   line-height: 1.6;
 }
-.people-grid .open-slot {
-  color: var(--muted);
-  font-size: 14px;
-}
-#partners .people-grid {
-  grid-template-columns: repeat(auto-fit, minmax(min(128px, 100%), 1fr));
-  gap: 22px 16px;
-}
-#partners .open-slot {
-  grid-column: 1 / -1;
-}
 .partner-link {
   display: inline-flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 8px;
+  gap: 12px;
+  padding-block: 5px;
 }
 .partner-link img {
-  width: 112px;
-  height: 36px;
+  width: 128px;
+  height: 40px;
   object-fit: contain;
   object-position: left center;
   mix-blend-mode: multiply;
 }
-.partner-link span {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
+.partner-link .action-label {
   font-size: 14px;
   font-weight: 500;
 }
-.partner-link:hover span {
-  text-decoration: underline;
-  text-underline-offset: 4px;
-}
 @media (max-width: 850px) {
-  .brand-en {
-    display: none;
-  }
   .nav a {
     padding-inline: 7px;
   }
@@ -1270,9 +1323,9 @@ dialog .actions {
   .detail-info .project-fields {
     grid-template-columns: auto 1fr;
   }
-  .directories {
-    grid-template-columns: 1fr;
-    gap: 0;
+  .people-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 128px), 1fr));
+    gap: 22px 16px;
   }
   .project-fields {
     grid-template-columns: 1fr;
@@ -1284,12 +1337,7 @@ dialog .actions {
     margin-top: 5px;
   }
   .brand-en {
-    display: block;
-    margin: 3px 0 0;
-    padding: 0;
-    border: 0;
     font-size: 9px;
-    line-height: 1;
   }
   .card-visual .image-placeholder {
     height: 100%;

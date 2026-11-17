@@ -2,6 +2,7 @@ export const repository = 'ZHANGXiyuan2004/embodied-studio';
 export const github = 'https://github.com/' + repository;
 export const base = process.env.NEXT_PUBLIC_BASE_PATH || '';
 export const studioName = '行知具身工作室';
+export const studioEnglishName = 'Xingzhi Embodied AI Studio';
 export const associationUrl = 'https://uestc-ia.github.io/';
 export const wechatId = 'DeepSeekv4flash0731';
 export const ideasFeed = github + '/issues?q=is%3Aissue+label%3Aidea';
@@ -50,7 +51,6 @@ export type Note = { id: string; title: string; body: string };
 export type DirectoryEntry = {
   id: string;
   name: string;
-  placeholder?: boolean;
   link?: { href: string; logo: string };
 };
 
@@ -81,9 +81,6 @@ export const partners: DirectoryEntry[] = [
       logo: '/partners/xbotics.png',
     },
   },
-  { id: 'partner-slot', name: '合作伙伴待补充', placeholder: true },
 ];
 
-export const mentors: DirectoryEntry[] = [
-  { id: 'mentor-slot', name: '教师姓名待填写', placeholder: true },
-];
+export const mentors: DirectoryEntry[] = [];

@@ -25,6 +25,7 @@ import {
   mentors,
   associationUrl,
   studioName,
+  studioEnglishName,
   ideasFeed,
   type DirectoryEntry,
 } from '@/lib/studio';
@@ -85,37 +86,41 @@ function Directory({
   entries: DirectoryEntry[];
 }) {
   return (
-    <section id={id} tabIndex={-1} className="section directory">
+    <section
+      id={id}
+      tabIndex={-1}
+      className="section directory"
+      aria-labelledby={id + '-title'}
+    >
       <Reveal className="section-head">
         <div>
           <p className="kicker">{label}</p>
-          <h2>{title}</h2>
+          <h2 id={id + '-title'}>{title}</h2>
         </div>
       </Reveal>
-      <ul className="people-grid">
-        {entries.map((entry) => (
-          <li
-            key={entry.id}
-            className={entry.placeholder ? 'open-slot' : undefined}
-          >
-            {entry.link ? (
-              <a className="partner-link" href={entry.link.href}>
-                <img
-                  src={base + entry.link.logo}
-                  alt=""
-                  width={112}
-                  height={36}
-                />
-                <span>
-                  {entry.name} <ExternalLink size={13} aria-hidden="true" />
-                </span>
-              </a>
-            ) : (
-              entry.name
-            )}
-          </li>
-        ))}
-      </ul>
+      {entries.length > 0 && (
+        <ul className="people-grid">
+          {entries.map((entry) => (
+            <li key={entry.id}>
+              {entry.link ? (
+                <ActionLink className="lift-action partner-link" href={entry.link.href}>
+                  <img
+                    src={base + entry.link.logo}
+                    alt=""
+                    width={128}
+                    height={40}
+                  />
+                  <span className="action-label">
+                    {entry.name} <ExternalLink size={13} aria-hidden="true" />
+                  </span>
+                </ActionLink>
+              ) : (
+                entry.name
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }
@@ -126,7 +131,9 @@ export function Home() {
     <main className="wrap" id="main">
       <section className="hero" id="studio">
         <div className="hero-copy">
-          <p className="kicker hero-kicker">Embodied Intelligence Studio</p>
+          <p className="kicker hero-kicker" lang="en">
+            {studioEnglishName}
+          </p>
           <h1 className="hero-title" aria-label={studioName}>
             <SplittingText
               type="lines"
@@ -137,10 +144,15 @@ export function Home() {
               disableAnimation={reduced}
             />
           </h1>
+          <p className="studio-intro">
+            我们是由本科生和研究生自发组建的具身智能团队。我们一起设计机器人软硬件，在真机上验证想法，也和合作伙伴探索如何把原型做成产品。
+          </p>
           <div className="hero-actions">
-            <a className="hero-action" href={associationUrl}>
-              浏览社团 <ExternalLink size={16} aria-hidden="true" />
-            </a>
+            <ActionLink className="lift-action hero-action" href={associationUrl}>
+              <span className="action-label">
+                浏览社团 <ExternalLink size={16} aria-hidden="true" />
+              </span>
+            </ActionLink>
             <ContactButton />
           </div>
         </div>
@@ -172,20 +184,8 @@ export function Home() {
           ))}
         </Accordion>
       </section>
-      <div className="directories">
-        <Directory
-          id="partners"
-          label="Partners"
-          title="合作伙伴"
-          entries={partners}
-        />
-        <Directory
-          id="mentors"
-          label="Faculty advisors"
-          title="指导教师"
-          entries={mentors}
-        />
-      </div>
+      <Directory id="partners" label="Partners" title="合作伙伴" entries={partners} />
+      <Directory id="mentors" label="Faculty advisors" title="指导教师" entries={mentors} />
     </main>
   );
 }

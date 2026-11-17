@@ -34,18 +34,20 @@ export function ContactButton() {
     <>
       <Button
         type="button"
-        className="hero-action contact-button"
+        className="lift-action hero-action contact-button"
         hoverScale={1}
         tapScale={1}
         aria-label="联系我们"
         onClick={copyWeChat}
       >
-        {result === 'copied' ? '已复制' : '联系我们'}
-        {result === 'copied' ? (
-          <Check size={16} aria-hidden="true" />
-        ) : (
-          <Copy size={16} aria-hidden="true" />
-        )}
+        <span className="action-label">
+          {result === 'copied' ? '已复制' : '联系我们'}
+          {result === 'copied' ? (
+            <Check size={16} aria-hidden="true" />
+          ) : (
+            <Copy size={16} aria-hidden="true" />
+          )}
+        </span>
       </Button>
       <span className="sr-only" role="status">
         {result === 'copied' ? '微信号已复制' : ''}

@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import { Shell } from '@/components/shell';
-import { base, studioName } from '@/lib/studio';
+import { base, studioName, studioEnglishName } from '@/lib/studio';
 import './globals.css';
 export const metadata: Metadata = {
   title: {
-    default: `${studioName} · Embodied Studio`,
+    default: `${studioName} · ${studioEnglishName}`,
     template: `%s · ${studioName}`,
   },
   description: `${studioName}的项目展示、学习笔记、合作伙伴和指导教师。`,

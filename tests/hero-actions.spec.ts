@@ -8,6 +8,7 @@ test('标题在手机、平板和桌面都保持一行，且落在标题栏内',
   const title = page.getByRole('heading', { level: 1, name: '行知具身工作室' });
   for (const width of [320, 390, 700, 701, 950, 1280]) {
     await page.setViewportSize({ width, height: 844 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width);
     const fits = await title.evaluate((h1) => {
       const range = document.createRange();
       const walker = document.createTreeWalker(h1, NodeFilter.SHOW_TEXT);
@@ -27,29 +28,49 @@ test('标题在手机、平板和桌面都保持一行，且落在标题栏内',
   }
 });
 
-test('首页两个入口等大且无边框，社团链接悬停时保持静止', async ({ page }) => {
+test('首页按钮与伙伴链接上浮并从中间展开下划线，点击区域保持稳定', async ({ page }) => {
   await page.goto(url);
-  const link = page.getByRole('link', { name: '浏览社团' });
+  const browse = page.getByRole('link', { name: '浏览社团' });
   const contact = page.getByRole('button', { name: '联系我们' });
-  const resting = await link.boundingBox();
-  const neighbor = await contact.boundingBox();
-  expect(neighbor?.width).toEqual(resting?.width);
-  expect(neighbor?.height).toEqual(resting?.height);
-  for (const action of [link, contact]) {
-    await expect(action).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
-    await expect(action).toHaveCSS('border-top-width', '0px');
+  const partner = page.locator('#partners a').first();
+  const firstBox = (await browse.boundingBox())!;
+  const secondBox = (await contact.boundingBox())!;
+  expect(firstBox.width).toEqual(secondBox.width);
+  expect(firstBox.height).toEqual(secondBox.height);
+
+  for (const action of [browse, contact, partner]) {
+    await action.scrollIntoViewIfNeeded();
+    const resting = (await action.boundingBox())!;
+    const label = action.locator('.action-label');
+    const scale = () => label.evaluate(el =>
+      new DOMMatrix(getComputedStyle(el, '::after').transform).a,
+    );
+    expect(await scale()).toBe(0);
     await action.hover();
-    await expect(action).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+    await expect.poll(scale).toBe(1);
+    await expect(label).toHaveCSS('translate', '0px -3px');
+    const origin = await label.evaluate(el => parseFloat(getComputedStyle(el, '::after').transformOrigin));
+    expect(origin).toBeCloseTo((await label.boundingBox())!.width / 2, 1);
+    expect(await action.boundingBox()).toEqual(resting);
+    if (action !== contact) {
+      await expect.poll(() => action.locator('svg g').first().evaluate(
+        el => new DOMMatrix(getComputedStyle(el).transform).e,
+      )).toBeGreaterThan(1);
+    }
+    await page.mouse.move(0, 0);
+    await expect.poll(scale).toBe(0);
   }
-  await link.hover();
-  await expect(link.locator('[data-slot^="flip-button"]')).toHaveCount(0);
-  await expect(link).toHaveCSS('transform', 'none');
-  expect(await link.boundingBox()).toEqual(resting);
 });
 
 test('三家合作伙伴的标识均已加载，图文链接指向官方页面', async ({ page }) => {
   await page.goto(url);
   const partners = page.locator('#partners');
+  const mentors = page.locator('#mentors');
+  const partnerBox = (await partners.boundingBox())!;
+  const mentorBox = (await mentors.boundingBox())!;
+  expect(mentorBox.y).toBeGreaterThanOrEqual(partnerBox.y + partnerBox.height - 1);
+  expect(mentorBox.width).toEqual(partnerBox.width);
+  await expect(page.getByText(/合作伙伴待补充|教师姓名待填写/)).toHaveCount(0);
   for (const [name, href] of [
     ['智元机器人', 'https://www.agibot.com/'],
     ['阿里云', 'https://www.aliyun.com/'],

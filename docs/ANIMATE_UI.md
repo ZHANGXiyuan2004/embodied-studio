@@ -6,7 +6,7 @@
 | --- | --- |
 | 桌面章节导航；手机菜单 | Highlight / HighlightItem；Radix Popover、Button 和 Menu |
 | 首页标题与章节出现 | SplittingText、Fade |
-| 首页社团链接和微信复制按钮 | 静态 ExternalLink、Button、Copy、Check |
+| 首页按钮和伙伴链接 | ActionLink 驱动 ExternalLink，微信复制使用 Button、Copy、Check。文字下划线从中心展开 |
 | 内页返回、项目卡片和外链反馈 | AnimateIcon 驱动 ArrowLeft、ArrowRight、ExternalLink |
 | 学习笔记、抓放演示按钮 | Radix Accordion、Button、Play、LoaderCircle |
 

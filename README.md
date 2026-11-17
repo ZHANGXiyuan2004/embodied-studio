@@ -2,7 +2,7 @@
 
 [工作室演示站](https://chashe-embodied-studio.pages.dev/)
 
-项目、成员和指导教师采用占位资料。合作伙伴栏链接至智元机器人、阿里云和 Xbotics 社区，并预留其他伙伴位置。首页使用 Franka Panda 三维模型，可点击方块抓取、再次点击台面放置，也支持触屏和键盘。
+项目和成员采用示例资料。合作伙伴栏链接至智元机器人、阿里云和 Xbotics 社区。指导教师有独立栏目，可在确认名单后添加姓名。首页使用 Franka Panda 三维模型，可点击方块抓取、再次点击台面放置，也支持触屏和键盘。
 
 ## 本地预览
 
@@ -21,7 +21,7 @@ npm run dev
 
 - 在 `lib/studio.ts` 编辑项目标题、项目人员和项目内容。将图片放入 `public/`，在项目条目增加 `image: { file: '/文件名.webp', alt: '画面描述' }`，列表和详情页会同时使用该图。
 - 在同一文件的 `notes` 添加 `{ id, title, body }`，每篇笔记自动成为一个可展开的条目。
-- 在 `partners` 或 `mentors` 添加 `{ id, name }`。展示伙伴标识时，将图片放入 `public/partners/`，在条目添加 `link: { href: '官网地址', logo: '/partners/文件名' }`，并在第三方署名中记录图片来源。预留位可设置 `placeholder: true`。同一列表内的 `id` 和项目 `slug` 分别保持唯一且稳定，可直接调整条目顺序。
+- 在 `partners` 或 `mentors` 添加 `{ id, name }`。展示伙伴标识时，将图片放入 `public/partners/`，在条目添加 `link: { href: '官网地址', logo: '/partners/文件名' }`，并在第三方署名中记录图片来源。名单为空时仅显示栏目标题。同一列表内的 `id` 和项目 `slug` 分别保持唯一且稳定，可直接调整条目顺序。
 - 重新构建后，项目会生成各自的详情页。项目卡片、章节布局和翻页动效都共用模板。投稿入口通向仓库的 GitHub Issues。
 
 ## Cloudflare Pages

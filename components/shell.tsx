@@ -29,7 +29,7 @@ import {
 } from './animate-ui/primitives/radix/popover';
 import { motionQuery, useStudioReducedMotion } from '@/lib/use-reduced-motion';
 import { Fade } from './animate-ui/primitives/effects/fade';
-import { base, github, studioName } from '@/lib/studio';
+import { base, github, studioName, studioEnglishName } from '@/lib/studio';
 import { controlTransition, revealTransition } from '@/lib/motion';
 
 // Keep native URLs and history while limiting smooth scrolling to intentional section jumps.
@@ -62,7 +62,7 @@ function followSection(
   onSelect(section.id);
   section.focus({ preventScroll: true });
   // A second selection can arrive while the browser is scrolling to the first.
-  // Cancel that command before targeting the next section, including siblings on the same row.
+  // Cancel that command before targeting the next section.
   window.scrollTo({ top: window.scrollY, behavior: 'instant' });
   requestAnimationFrame(() => {
     if (location.hash === link.hash)
@@ -236,7 +236,6 @@ export function Shell({ children }: { children: ReactNode }) {
           current = section.id;
           break;
         }
-        // Desktop directory columns can share exactly the same reading position.
         if ((rect.top <= line || atBottom) && rect.top > latestTop + 1) {
           current = section.id;
           latestTop = rect.top;
@@ -321,7 +320,7 @@ export function Shell({ children }: { children: ReactNode }) {
             />
             <span>
               {studioName}
-              <span className="brand-en">Embodied Studio</span>
+              <span className="brand-en" lang="en">{studioEnglishName}</span>
             </span>
           </a>
           <div className="header-right">
@@ -392,7 +391,7 @@ export function Shell({ children }: { children: ReactNode }) {
       <noscript>
         <style>
           {
-            '.hero-actions .contact-button{display:none}@media(max-width:700px){.mobile-navigation{display:none}.site-header .nav{display:flex;flex-wrap:wrap}.header-inner{height:auto;flex-wrap:wrap;padding-block:8px}.header-right,.nav-items{flex-wrap:wrap;max-width:100%}}.reveal,.hero-title span{opacity:1!important;transform:none!important}[data-slot="tabs-contents"]{height:auto!important}[data-slot="tabs-contents"]>div{display:block!important;transform:none!important}[data-slot="tabs-list"]{display:none!important}'
+            '.hero-actions .contact-button{display:none}@media(max-width:800px){.mobile-navigation{display:none}.site-header .nav{display:flex;flex-wrap:wrap}.header-inner{height:auto;flex-wrap:wrap;padding-block:8px}.header-right,.nav-items{flex-wrap:wrap;max-width:100%}}.reveal,.hero-title span{opacity:1!important;transform:none!important}[data-slot="tabs-contents"]{height:auto!important}[data-slot="tabs-contents"]>div{display:block!important;transform:none!important}[data-slot="tabs-list"]{display:none!important}'
           }
         </style>
       </noscript>

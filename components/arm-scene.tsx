@@ -70,7 +70,6 @@ export function ArmScene() {
       <div
         className="scene-display"
         data-phase={phase}
-        style={{ aspectRatio: '1.56' }}
       >
         <img
           className="scene-poster"
