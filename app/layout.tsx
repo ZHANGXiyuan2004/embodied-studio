@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     default: `${studioName} · ${studioEnglishName}`,
     template: `%s · ${studioName}`,
   },
-  description: `${studioName}的项目展示、内容产出、合作伙伴和指导教师。`,
+  description: `${studioName}由本科生、硕士生和博士生自发组建，依托英才科协具身部探索具身智能。浏览机器人项目与原创内容，分享原型，联系团队一起验证想法。`,
   icons: { icon: base + '/icon.png?xingzhi' },
 };
 // Register before first paint so both cold loads and history restores can pair the two covers.

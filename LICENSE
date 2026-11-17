@@ -1,22 +1,51 @@
-行知具身工作室 · 权利声明
-Copyright © 2026 行知具身工作室及相应贡献者。保留所有权利。
+行知具身工作室（Xingzhi Embodied AI Studio）作品使用与授权说明
+Copyright © 2026 行知具身工作室及相应贡献者。各权利人保留其享有的权利。
 
-本声明适用于仓库中由工作室或其贡献者享有权利的原创站点代码、交互
-Demo 和原创文字。访客可以浏览网站、运行在线演示、分享公开链接，并
-依 GitHub 服务条款在平台上查看和 Fork 公开仓库。
+一、工作室原创作品
 
-如需将上述作品复制到其他产品或网站、改编后对外发布、销售或作其他
-商业复用，请先通过仓库的「参与项目」入口联系工作室，与相应权利人
-另行约定授权范围。法律允许的使用及权利人已授予的许可继续有效。
+本声明适用于工作室及贡献者在本仓库中享有权利、且未另行标注许可的原创作品，
+包括站点代码、交互 Demo、教程、图文、视频和活动设计稿。访客可以浏览网站、
+体验在线演示、分享公开链接，也可以按 GitHub 服务条款在平台上查看和 Fork 仓库。
 
-第三方软件、图标、三维模型及其修改版本依各自的许可使用，原署名和许可条件
-继续有效。详见 components/animate-ui/LICENSE.md 和
-public/third-party-notices.txt。投稿项目、外链仓库、论文及数据集
-的权利归各自权利人，其复用以原项目许可或作者另行授权为准。
-器材台账、投稿记录和工作室标识未获本声明授予再利用许可。
+将上述作品复制到其他网站或产品、对外分发原作或改编版本，或用于销售、商业
+培训等用途，须先与相应权利人约定授权。例如，企业可以分享抓放演示的链接供
+同事体验；若希望把工作室编写的交互代码集成进自家产品，请先洽谈授权。
+适用法律允许的使用及权利人已作出的授权继续有效。
 
-All rights reserved in original studio code, demos and editorial material
-to the extent of the respective rights holders' rights. Contact the studio
-to arrange permission for commercial reuse, adaptation for redistribution
-or incorporation into another product. Applicable statutory exceptions,
-GitHub platform permissions and existing third-party licenses are preserved.
+二、成员投稿与合作项目
+
+成员保留其对投稿作品享有的权利。在本站展示项目、提交 Issue 或参与路演，
+本身不转让作品权利。单独标注许可的项目及外链仓库、论文、数据集，依各自
+许可或相关协议使用。如项目未标注许可，或拟议用途超出已有许可，请联系
+相应权利人。联合开发或孵化项目的成果归属、署名和后续使用由参与方另行约定。
+
+三、第三方材料与标识
+
+第三方代码、图标、三维模型及其修改版本依各自的许可使用。随仓库分发的
+Franka Panda 模型和渲染预览图适用 Apache-2.0，Animate UI 组件和动画图标适用
+其 MIT + Commons Clause 条款。具体来源、署名与许可全文见
+public/third-party-notices.txt 和 components/animate-ui/LICENSE.md。
+工作室和合作伙伴的名称与标识归各自权利人，本声明不授予品牌使用许可。
+器材台账与投稿记录也不在本声明授予的复用范围内。
+
+四、联系授权
+
+请通过官网「许可与署名」中的「洽谈授权」说明作品链接或版本、预期用途以及
+是否对外分发。需要私下沟通时，可通过官网首页的「联系我们」联系工作室。
+官网许可页：https://xingzhi-embodied-studio.pages.dev/license/
+GitHub 平台条款：https://docs.github.com/en/site-policy/github-terms/github-terms-of-service
+
+English summary
+
+Xingzhi Embodied AI Studio and its contributors reserve their respective rights
+in original site code, demos, tutorials, media and designs, unless a work carries
+its own license. You may browse the site, try the hosted demos, share public links,
+and view or fork the repository as permitted by GitHub's Terms of Service.
+Contact the relevant rights holder before incorporating these works into a product
+or another site, distributing originals or adaptations, or using them commercially.
+Existing permissions and statutory exceptions continue to apply.
+
+Contributors retain their rights. Submissions and third-party materials follow their
+own licenses or agreements. Contact the rights holder if the intended use is not
+covered. No brand license is granted. For permission requests, use the studio
+license page above and identify the work, intended use and distribution plans.

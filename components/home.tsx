@@ -178,7 +178,7 @@ export function Home() {
                 </div>
                 <AccordionContent transition={reduced ? { duration: 0 } : controlTransition}>
                   <p className="studio-intro">
-                    我们是由本科生和研究生自发组建的具身智能团队。我们一起设计机器人软硬件，在真机上验证想法，也和合作伙伴探索如何把原型做成产品。
+                    我们是一群研究具身智能的本科生、硕士生和博士生，依托英才科协具身部组建了行知具身工作室。在这里，同学自己选题，和学长学姐一起设计机器人软硬件、动手做原型。我们希望把经过验证的项目带给真正需要它的人，也让想创业的同学有机会把原型做成产品。
                   </p>
                 </AccordionContent>
               </AccordionItem>
