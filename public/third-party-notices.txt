@@ -2,6 +2,15 @@
 随网页提供的软件与图标沿用各自条款。以下按许可原文归组，组内列出对应项目。
 构建与动效适配参考 https://github.com/ZHANGXiyuan2004/ZHANGXiyuan2004.github.io/tree/e0cab6988f5c1828354b324742975f6898f1dd69
 
+合作伙伴标识用于识别并链接相应组织，权利归各自权利人所有。
+
+智元机器人（AGIBOT）— 官网页眉标识
+https://www.agibot.com/public/static/index/en/images/logo2.png
+阿里云 — 官方帮助中心页眉的品牌标识
+https://help.aliyun.com/
+Xbotics 社区 — 社区具身智能学习指南标识（裁去外围留白）
+https://github.com/Xbotics-Embodied-AI-club/Xbotics-Embodied-Guide/blob/db3c3d7c982085281a36e68e8cacc7a1fc2eb95f/files/images/Xbotics.png
+
 ====================================================================
 @radix-ui/primitive 1.1.7 — LICENSE
 @radix-ui/react-accordion 1.2.20 — LICENSE

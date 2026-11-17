@@ -51,6 +51,7 @@ export type DirectoryEntry = {
   id: string;
   name: string;
   placeholder?: boolean;
+  link?: { href: string; logo: string };
 };
 
 export const notes: Note[] = [
@@ -62,7 +63,24 @@ export const notes: Note[] = [
 ];
 
 export const partners: DirectoryEntry[] = [
-  { id: 'zhiyuan', name: '智源机器人' },
+  {
+    id: 'agibot',
+    name: '智元机器人',
+    link: { href: 'https://www.agibot.com/', logo: '/partners/agibot.png' },
+  },
+  {
+    id: 'aliyun',
+    name: '阿里云',
+    link: { href: 'https://www.aliyun.com/', logo: '/partners/aliyun.svg' },
+  },
+  {
+    id: 'xbotics',
+    name: 'Xbotics 社区',
+    link: {
+      href: 'https://github.com/Xbotics-Embodied-AI-club',
+      logo: '/partners/xbotics.png',
+    },
+  },
   { id: 'partner-slot', name: '合作伙伴待补充', placeholder: true },
 ];
 

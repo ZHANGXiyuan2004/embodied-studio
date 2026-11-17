@@ -45,6 +45,7 @@ export default function LicensePage() {
       </section>
       <section className="next-step">
         <h2>第三方组件、图标与模型</h2>
+        <p>合作伙伴栏的品牌名称和标识归各自权利人所有。各标识的来源见下方第三方署名。</p>
         <p>
           本站使用 Animate UI 官方组件和动画图标，采用 Elliot Sutton 的 MIT +
           Commons Clause

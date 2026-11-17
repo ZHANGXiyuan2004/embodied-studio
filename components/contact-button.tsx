@@ -5,13 +5,11 @@ import { wechatId } from '@/lib/studio';
 import { Button } from './animate-ui/primitives/buttons/button';
 import { Copy } from './animate-ui/icons/copy';
 import { Check } from './animate-ui/icons/check';
-import { useStudioReducedMotion } from '@/lib/use-reduced-motion';
 
 export function ContactButton() {
   const [result, setResult] = useState<'idle' | 'copied' | 'manual'>('idle');
   const manual = useRef<HTMLInputElement>(null);
   const reset = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const reduced = useStudioReducedMotion();
 
   useEffect(() => () => clearTimeout(reset.current), []);
   useEffect(() => {
@@ -36,9 +34,9 @@ export function ContactButton() {
     <>
       <Button
         type="button"
-        className="contact-button"
+        className="hero-action contact-button"
         hoverScale={1}
-        tapScale={reduced ? 1 : 0.97}
+        tapScale={1}
         aria-label="联系我们"
         onClick={copyWeChat}
       >

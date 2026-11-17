@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     template: `%s · ${studioName}`,
   },
   description: `${studioName}的项目展示、学习笔记、合作伙伴和指导教师。`,
-  icons: { icon: base + '/icon.png' },
+  icons: { icon: base + '/icon.png?xingzhi' },
 };
 // Register before first paint so both cold loads and history restores can pair the two covers.
 const projectTransitions = `

@@ -128,13 +128,9 @@ figure {
   white-space: nowrap;
 }
 .brand-mark {
-  width: 33px;
-  height: 33px;
-  display: grid;
-  place-items: center;
-  background: #242621;
-  border-radius: 7px;
-  color: var(--paper);
+  width: 36px;
+  height: 36px;
+  flex: none;
 }
 .brand-en {
   margin-left: 12px;
@@ -210,11 +206,16 @@ figure {
   height: 2px;
   background: var(--accent-ink);
 }
+.hero-copy {
+  min-width: 0;
+  container-type: inline-size;
+}
 .hero-kicker {
   margin-bottom: 20px;
 }
 .hero-title {
-  font-size: clamp(46px, 5.2vw, 77px);
+  font-size: clamp(26px, 14cqi, 68px);
+  white-space: nowrap;
   font-weight: 640;
   letter-spacing: -0.072em;
   line-height: 1.09;
@@ -228,8 +229,7 @@ figure {
   margin-top: 26px;
 }
 .solid,
-.outline,
-.flip-link [data-slot^='flip-button-'] {
+.outline {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -270,36 +270,26 @@ figure {
   text-decoration: underline;
   text-underline-offset: 4px;
 }
-.flip-link {
-  border-radius: var(--control-radius);
-  position: relative;
-  isolation: isolate;
-  overflow: clip;
-  background: var(--ink);
-  color: var(--surface);
-  transition: background-color var(--control-time) var(--ease-studio);
-}
-.flip-link [data-slot^='flip-button-'] {
-  width: 100%;
-  min-height: 44px;
-  background: transparent;
-  color: inherit;
-  border: 0;
-  box-shadow: none;
-  padding-inline: 17px;
-  font-size: 14px;
-  font-weight: 600;
-  backface-visibility: hidden;
-}
-.flip-link:is(:hover, :focus-visible) {
-  background: #393b35;
-}
 .hero-actions {
   display: inline-grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 22px;
 }
-.hero-actions .contact-button,
+.hero-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 550;
+  white-space: nowrap;
+}
 .scene-play {
   display: inline-flex;
   align-items: center;
@@ -311,13 +301,6 @@ figure {
   color: var(--ink);
   transition: background-color var(--control-time) var(--ease-studio);
 }
-.contact-button {
-  gap: 8px;
-  padding-inline: 12px;
-  font-size: 14px;
-  font-weight: 550;
-}
-.hero-actions .contact-button:is(:hover, :focus-visible),
 .scene-play:not([aria-disabled='true']):is(:hover, :focus-visible) {
   background: var(--field);
 }
@@ -848,9 +831,6 @@ dialog .actions {
     gap: 20px;
     padding: 32px 0;
   }
-  .hero-title {
-    font-size: clamp(36px, 4.8vw, 51px);
-  }
   .brand-en {
     display: none;
   }
@@ -958,11 +938,7 @@ dialog .actions {
     padding: 32px 0 28px;
   }
   .hero-title {
-    font-size: clamp(36px, 9.5vw, 56px);
     margin-bottom: 14px;
-  }
-  .hero-title br {
-    display: none;
   }
   .hero-kicker {
     margin-bottom: 13px;
@@ -1222,7 +1198,7 @@ dialog .actions {
 }
 .directories {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
   gap: 32px;
 }
 .people-grid {
@@ -1239,6 +1215,37 @@ dialog .actions {
 .people-grid .open-slot {
   color: var(--muted);
   font-size: 14px;
+}
+#partners .people-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(128px, 100%), 1fr));
+  gap: 22px 16px;
+}
+#partners .open-slot {
+  grid-column: 1 / -1;
+}
+.partner-link {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+.partner-link img {
+  width: 112px;
+  height: 36px;
+  object-fit: contain;
+  object-position: left center;
+  mix-blend-mode: multiply;
+}
+.partner-link span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 14px;
+  font-weight: 500;
+}
+.partner-link:hover span {
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }
 @media (max-width: 850px) {
   .brand-en {
@@ -1448,9 +1455,6 @@ dialog .actions {
   }
   .project-card:is(:hover, :focus-visible),
   a:is(:hover, :focus-visible) svg {
-    transform: none !important;
-  }
-  .flip-link [data-slot^='flip-button-'] {
     transform: none !important;
   }
 }

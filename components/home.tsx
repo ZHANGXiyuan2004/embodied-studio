@@ -12,7 +12,7 @@ import {
   AccordionTrigger,
   AccordionContent,
 } from './animate-ui/components/radix/accordion';
-import { Reveal, FlipLink } from './shell';
+import { Reveal } from './shell';
 import { ContactButton } from './contact-button';
 import { ArmScene } from './arm-scene';
 import { ProjectImage } from './project-image';
@@ -98,7 +98,21 @@ function Directory({
             key={entry.id}
             className={entry.placeholder ? 'open-slot' : undefined}
           >
-            {entry.name}
+            {entry.link ? (
+              <a className="partner-link" href={entry.link.href}>
+                <img
+                  src={base + entry.link.logo}
+                  alt=""
+                  width={112}
+                  height={36}
+                />
+                <span>
+                  {entry.name} <ExternalLink size={13} aria-hidden="true" />
+                </span>
+              </a>
+            ) : (
+              entry.name
+            )}
           </li>
         ))}
       </ul>
@@ -116,16 +130,17 @@ export function Home() {
           <h1 className="hero-title" aria-label={studioName}>
             <SplittingText
               type="lines"
-              text={['行知具身', '工作室']}
+              text={[studioName]}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={revealTransition}
-              stagger={0.06}
               disableAnimation={reduced}
             />
           </h1>
           <div className="hero-actions">
-            <FlipLink href={associationUrl}>浏览社团</FlipLink>
+            <a className="hero-action" href={associationUrl}>
+              浏览社团 <ExternalLink size={16} aria-hidden="true" />
+            </a>
             <ContactButton />
           </div>
         </div>

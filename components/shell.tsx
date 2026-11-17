@@ -6,7 +6,7 @@ import {
   type ReactNode,
   type MouseEvent,
 } from 'react';
-import { MotionConfig, type MotionStyle } from 'motion/react';
+import { MotionConfig } from 'motion/react';
 import { ActionLink } from './action-link';
 import { ExternalLink } from './animate-ui/icons/external-link';
 import { Layers } from './animate-ui/icons/layers';
@@ -29,11 +29,6 @@ import {
 } from './animate-ui/primitives/radix/popover';
 import { motionQuery, useStudioReducedMotion } from '@/lib/use-reduced-motion';
 import { Fade } from './animate-ui/primitives/effects/fade';
-import {
-  FlipButton,
-  FlipButtonFront,
-  FlipButtonBack,
-} from './animate-ui/components/buttons/flip';
 import { base, github, studioName } from '@/lib/studio';
 import { controlTransition, revealTransition } from '@/lib/motion';
 
@@ -99,44 +94,6 @@ export function Reveal({
     >
       {children}
     </Fade>
-  );
-}
-// Return settled faces to normal text rendering after the registry flip finishes.
-function flipFaceTransform(values: MotionStyle, transform: string) {
-  return !Number.parseFloat(String(values.rotateX || 0)) &&
-    !Number.parseFloat(String(values.y || 0))
-    ? 'none'
-    : transform;
-}
-
-export function FlipLink({
-  href,
-  children,
-}: {
-  href: string;
-  children: string;
-}) {
-  const reduced = useStudioReducedMotion();
-  return (
-    <FlipButton asChild whileFocus="hover" tapScale={1} aria-label={children}>
-      <a href={href} className="flip-link">
-        <FlipButtonFront
-          transformTemplate={flipFaceTransform}
-          transition={reduced ? { duration: 0 } : controlTransition}
-        >
-          {children}
-          <ExternalLink size={16} aria-hidden="true" />
-        </FlipButtonFront>
-        <FlipButtonBack
-          transformTemplate={flipFaceTransform}
-          aria-hidden="true"
-          transition={reduced ? { duration: 0 } : controlTransition}
-        >
-          {children}
-          <ExternalLink size={16} aria-hidden="true" />
-        </FlipButtonBack>
-      </a>
-    </FlipButton>
   );
 }
 const nav = [
@@ -355,9 +312,13 @@ export function Shell({ children }: { children: ReactNode }) {
             href={base + '/'}
             aria-label={studioName + '首页'}
           >
-            <span className="brand-mark">
-              <img src={base + '/icon.png'} alt="" width={33} height={33} />
-            </span>
+            <img
+              className="brand-mark"
+              src={base + '/icon.png?xingzhi'}
+              alt=""
+              width={36}
+              height={36}
+            />
             <span>
               {studioName}
               <span className="brand-en">Embodied Studio</span>
