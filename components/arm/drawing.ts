@@ -241,9 +241,8 @@ export async function createStage(
   function resize() {
     const { width, height } = canvas.getBoundingClientRect();
     if (!width || !height) return;
-    // The poster and the live scene share a vertical frame as the workbench widens.
-    camera.right = camera.top * (width / height);
-    camera.left = -camera.right;
+    // Match the poster's right-aligned crop and keep the robot's vertical scale.
+    camera.left = camera.right - (camera.top - camera.bottom) * (width / height);
     camera.updateProjectionMatrix();
     renderer.setPixelRatio(
       Math.min(Math.max((devicePixelRatio || 1) * 1.25, 1.5), 3, 2048 / width),

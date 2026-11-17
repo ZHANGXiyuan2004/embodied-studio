@@ -62,6 +62,34 @@ test('首页按钮与伙伴链接上浮并从中间展开下划线，点击区�
   }
 });
 
+test('首页三个入口无边框，工作室简介在按钮下展开并原位收起', async ({ page }) => {
+  for (const width of [1280, 320]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto(url);
+    const intro = page.getByRole('button', { name: '工作室简介' });
+    const body = page.locator('.studio-intro');
+    for (const action of await page.locator('.hero-actions .hero-action').all()) {
+      await expect(action).toHaveCSS('border-width', '0px');
+      await action.hover();
+      expect(await action.evaluate(el => getComputedStyle(el, '::before').content)).toBe('none');
+    }
+    await expect(intro).toHaveAttribute('aria-expanded', 'false');
+    await expect(body).toBeHidden();
+    const resting = (await intro.boundingBox())!;
+    await intro.press('Enter');
+    await expect(intro).toHaveAttribute('aria-expanded', 'true');
+    await expect(page.locator('.hero-copy').getByRole('region', { name: '工作室简介' })).toBeVisible();
+    const copy = (await page.locator('.hero-copy').boundingBox())!;
+    const text = (await body.boundingBox())!;
+    expect(text.y).toBeGreaterThanOrEqual(resting.y + resting.height - 1);
+    expect(text.x + text.width).toBeLessThanOrEqual(copy.x + copy.width + 1);
+    expect(await intro.boundingBox()).toEqual(resting);
+    await intro.press('Space');
+    await expect(intro).toHaveAttribute('aria-expanded', 'false');
+    await expect(body).toBeHidden();
+  }
+});
+
 test('三家合作伙伴的标识均已加载，图文链接指向官方页面', async ({ page }) => {
   await page.goto(url);
   const partners = page.locator('#partners');

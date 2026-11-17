@@ -4,6 +4,7 @@ import { ActionLink } from './action-link';
 import { ArrowRight } from './animate-ui/icons/arrow-right';
 import { ExternalLink } from './animate-ui/icons/external-link';
 import { ClipboardList } from './animate-ui/icons/clipboard-list';
+import { ChevronDown } from './animate-ui/icons/chevron-down';
 import { useStudioReducedMotion } from '@/lib/use-reduced-motion';
 import { SplittingText } from './animate-ui/primitives/texts/splitting';
 import {
@@ -12,6 +13,10 @@ import {
   AccordionTrigger,
   AccordionContent,
 } from './animate-ui/components/radix/accordion';
+import {
+  AccordionHeader,
+  AccordionTrigger as DisclosureTrigger,
+} from './animate-ui/primitives/radix/accordion';
 import { Reveal } from './shell';
 import { ContactButton } from './contact-button';
 import { ArmScene } from './arm-scene';
@@ -144,17 +149,30 @@ export function Home() {
               disableAnimation={reduced}
             />
           </h1>
-          <p className="studio-intro">
-            我们是由本科生和研究生自发组建的具身智能团队。我们一起设计机器人软硬件，在真机上验证想法，也和合作伙伴探索如何把原型做成产品。
-          </p>
-          <div className="hero-actions">
-            <ActionLink className="lift-action hero-action" href={associationUrl}>
-              <span className="action-label">
-                浏览社团 <ExternalLink size={16} aria-hidden="true" />
-              </span>
-            </ActionLink>
-            <ContactButton />
-          </div>
+          <Accordion type="single" collapsible>
+            <AccordionItem value="studio-intro">
+              <div className="hero-actions">
+                <AccordionHeader>
+                  <DisclosureTrigger className="hero-action lift-action intro-trigger">
+                    <span className="action-label">
+                      工作室简介 <ChevronDown size={16} aria-hidden="true" />
+                    </span>
+                  </DisclosureTrigger>
+                </AccordionHeader>
+                <ActionLink className="hero-action lift-action" href={associationUrl}>
+                  <span className="action-label">
+                    浏览社团 <ExternalLink size={16} aria-hidden="true" />
+                  </span>
+                </ActionLink>
+                <ContactButton />
+              </div>
+              <AccordionContent transition={reduced ? { duration: 0 } : controlTransition}>
+                <p className="studio-intro">
+                  我们是由本科生和研究生自发组建的具身智能团队。我们一起设计机器人软硬件，在真机上验证想法，也和合作伙伴探索如何把原型做成产品。
+                </p>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
         <ArmScene />
       </section>
