@@ -2,11 +2,23 @@
 import {
   useEffect,
   useState,
+  useRef,
   useSyncExternalStore,
   type ReactNode,
+  type MouseEvent,
 } from 'react';
 import { motion, MotionConfig } from 'motion/react';
-import { Asterisk, ArrowUpRight, Github, Menu, X } from 'lucide-react';
+import {
+  Asterisk,
+  ArrowUpRight,
+  Github,
+  Layers,
+  BookOpen,
+  Handshake,
+  GraduationCap,
+  ChevronRight,
+} from 'lucide-react';
+import { Popover } from 'radix-ui';
 import { Fade } from './animate-ui/primitives/effects/fade';
 import {
   FlipButton,
@@ -28,6 +40,43 @@ export function useStudioReducedMotion() {
     () => window.matchMedia(motionQuery).matches,
     () => false,
   );
+}
+
+// Keep native URLs and history while limiting smooth scrolling to intentional section jumps.
+function followSection(event: MouseEvent<HTMLAnchorElement>) {
+  if (
+    event.defaultPrevented ||
+    event.button !== 0 ||
+    event.metaKey ||
+    event.ctrlKey ||
+    event.shiftKey ||
+    event.altKey
+  )
+    return;
+  const link = event.currentTarget;
+  if (
+    !link.hash ||
+    link.pathname !== location.pathname ||
+    link.search !== location.search ||
+    link.origin !== location.origin
+  )
+    return;
+  const section = document.getElementById(link.hash.slice(1));
+  if (!section) return;
+  event.preventDefault();
+  if (link.hash !== location.hash)
+    history.pushState(history.state, '', link.href);
+  section.focus({ preventScroll: true });
+  // A second selection can arrive while the browser is scrolling to the first.
+  // Cancel that command before targeting the next section, including siblings on the same row.
+  window.scrollTo({ top: window.scrollY, behavior: 'instant' });
+  requestAnimationFrame(() => {
+    if (location.hash === link.hash)
+      section.scrollIntoView({
+        block: 'start',
+        behavior: matchMedia(motionQuery).matches ? 'instant' : 'smooth',
+      });
+  });
 }
 
 export function Reveal({
@@ -65,7 +114,7 @@ export function FlipLink({
   const reduced = useStudioReducedMotion();
   return (
     <FlipButton asChild whileFocus="hover" tapScale={1} aria-label={children}>
-      <a href={href} className="flip-link">
+      <a href={href} className="flip-link" onClick={followSection}>
         <FlipButtonFront
           transition={reduced ? { duration: 0 } : controlTransition}
         >
@@ -84,35 +133,143 @@ export function FlipLink({
   );
 }
 const nav = [
-  ['projects', '项目展示'],
-  ['notes', '学习笔记'],
-  ['partners', '合作伙伴'],
-  ['mentors', '指导教师'],
+  { id: 'projects', title: '项目展示', icon: Layers },
+  { id: 'notes', title: '学习笔记', icon: BookOpen },
+  { id: 'partners', title: '合作伙伴', icon: Handshake },
+  { id: 'mentors', title: '指导教师', icon: GraduationCap },
 ];
+
+function MobileNav({ active }: { active: string }) {
+  const [open, setOpen] = useState(false);
+  const destination = useRef<string | null>(null);
+  const panel = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const mobile = window.matchMedia('(max-width: 700px)');
+    const closeOnDesktop = () => {
+      if (!mobile.matches) setOpen(false);
+    };
+    mobile.addEventListener('change', closeOnDesktop);
+    return () => mobile.removeEventListener('change', closeOnDesktop);
+  }, []);
+  return (
+    <div className="mobile-navigation">
+      <Popover.Root open={open} onOpenChange={setOpen}>
+        <Popover.Trigger asChild>
+          <button
+            type="button"
+            className="menu-button"
+            aria-label={open ? '收起菜单' : '展开菜单'}
+          >
+            <span aria-hidden="true" className="menu-glyph" />
+          </button>
+        </Popover.Trigger>
+        <Popover.Content
+          align="end"
+          sideOffset={9}
+          collisionPadding={12}
+          className="mobile-nav-panel"
+          ref={panel}
+          aria-label="网站导航"
+          onOpenAutoFocus={(event) => {
+            event.preventDefault();
+            panel.current?.querySelector('a')?.focus({ preventScroll: true });
+          }}
+          onCloseAutoFocus={(event) => {
+            if (!destination.current) return;
+            event.preventDefault();
+            document
+              .getElementById(destination.current)
+              ?.focus({ preventScroll: true });
+            destination.current = null;
+          }}
+        >
+          <nav aria-label="主导航">
+            {nav.map(({ id, title, icon: Icon }) => (
+              <a
+                key={id}
+                href={base + '/#' + id}
+                aria-current={active === id ? 'location' : undefined}
+                onClick={(event) => {
+                  if (
+                    event.metaKey ||
+                    event.ctrlKey ||
+                    event.shiftKey ||
+                    event.altKey
+                  )
+                    return;
+                  destination.current = id;
+                  followSection(event);
+                  setOpen(false);
+                }}
+              >
+                <Icon size={17} aria-hidden="true" />
+                {title}
+                <ChevronRight size={14} aria-hidden="true" />
+              </a>
+            ))}
+          </nav>
+        </Popover.Content>
+      </Popover.Root>
+    </div>
+  );
+}
 export function Shell({ children }: { children: ReactNode }) {
-  const [open, setOpen] = useState(false),
-    [active, setActive] = useState('');
+  const [active, setActive] = useState('');
   const [hovered, setHovered] = useState('');
   const [focused, setFocused] = useState('');
   const reduced = useStudioReducedMotion();
   const highlighted = hovered || focused || active;
   useEffect(() => {
+    const main = document.querySelector('main');
     const sections = Array.from(document.querySelectorAll('main section[id]'));
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) if (e.isIntersecting) setActive(e.target.id);
-      },
-      { rootMargin: '-10% 0px -55% 0px' },
-    );
-    sections.forEach((s) => observer.observe(s));
-    if (location.pathname.includes('/projects/')) setActive('projects');
-    const escape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setOpen(false);
-    };
-    window.addEventListener('keydown', escape);
+    if (!main || !sections.length) {
+      if (location.pathname.includes('/projects/')) setActive('projects');
+      return;
+    }
+    let frame = 0;
+    function update() {
+      frame = 0;
+      const line = Math.min(innerHeight * 0.3, 220);
+      const atBottom =
+        scrollY + innerHeight >= document.documentElement.scrollHeight - 2;
+      const target = location.hash.slice(1);
+      let latestTop = -Infinity;
+      let current = '';
+      for (const section of sections) {
+        const rect = section.getBoundingClientRect();
+        if (rect.top >= innerHeight || rect.bottom <= 0) continue;
+        if (
+          section.id === target &&
+          (atBottom || (rect.top <= line && rect.bottom > line))
+        ) {
+          current = section.id;
+          break;
+        }
+        // Desktop directory columns can share exactly the same reading position.
+        if ((rect.top <= line || atBottom) && rect.top > latestTop + 1) {
+          current = section.id;
+          latestTop = rect.top;
+        }
+      }
+      setActive(current);
+    }
+    function schedule() {
+      if (!frame) frame = requestAnimationFrame(update);
+    }
+    update();
+    const resize = new ResizeObserver(schedule);
+    resize.observe(main);
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    window.addEventListener('hashchange', schedule);
+    main.addEventListener('focusin', schedule);
     return () => {
-      observer.disconnect();
-      window.removeEventListener('keydown', escape);
+      resize.disconnect();
+      cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', schedule);
+      window.removeEventListener('hashchange', schedule);
+      main.removeEventListener('focusin', schedule);
     };
   }, []);
   return (
@@ -143,9 +300,9 @@ export function Shell({ children }: { children: ReactNode }) {
                 if (!event.currentTarget.contains(event.relatedTarget))
                   setFocused('');
               }}
-              className={open ? 'nav open' : 'nav'}
+              className="nav"
             >
-              {nav.map(([id, title]) => (
+              {nav.map(({ id, title }) => (
                 <a
                   key={id}
                   href={base + '/#' + id}
@@ -157,8 +314,8 @@ export function Shell({ children }: { children: ReactNode }) {
                     if (event.currentTarget.matches(':focus-visible'))
                       setFocused(id);
                   }}
-                  onClick={() => {
-                    setOpen(false);
+                  onClick={(event) => {
+                    followSection(event);
                     setFocused('');
                     setHovered('');
                   }}
@@ -185,30 +342,24 @@ export function Shell({ children }: { children: ReactNode }) {
               <span>GitHub</span>
               <ArrowUpRight size={13} />
             </a>
-            <button
-              className="menu-button"
-              onClick={() => setOpen(!open)}
-              aria-expanded={open}
-              aria-controls="nav-links"
-              aria-label={open ? '收起菜单' : '展开菜单'}
-            >
-              {open ? <X /> : <Menu />}
-            </button>
+            <MobileNav active={active} />
           </div>
         </div>
       </header>
       {children}
       <footer className="footer wrap">
         <span>© 2026 叉社具身工作室</span>
-        <a href={base + '/license/'}>许可与署名</a>
-        <a href={github}>
-          GitHub 仓库 <ArrowUpRight size={13} />
-        </a>
+        <nav aria-label="页脚导航">
+          <a href={base + '/license/'}>许可与署名</a>
+          <a href={github}>
+            GitHub 仓库 <ArrowUpRight size={13} />
+          </a>
+        </nav>
       </footer>
       <noscript>
         <style>
           {
-            '.reveal,.hero-title span{opacity:1!important;transform:none!important}[data-slot="tabs-contents"]{height:auto!important}[data-slot="tabs-contents"]>div{display:block!important;transform:none!important}[data-slot="tabs-list"]{display:none!important}'
+            '@media(max-width:700px){.mobile-navigation{display:none}.site-header .nav{display:flex;flex-wrap:wrap}.header-inner{height:auto;flex-wrap:wrap;padding-block:8px}.header-right{flex-wrap:wrap}.header-right .github-link{width:32px}}.reveal,.hero-title span{opacity:1!important;transform:none!important}[data-slot="tabs-contents"]{height:auto!important}[data-slot="tabs-contents"]>div{display:block!important;transform:none!important}[data-slot="tabs-list"]{display:none!important}'
           }
         </style>
       </noscript>

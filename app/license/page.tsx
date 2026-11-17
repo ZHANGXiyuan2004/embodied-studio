@@ -5,7 +5,7 @@ export const metadata = { title: '许可与署名' };
 
 export default function LicensePage() {
   return (
-    <main id="main" className="wrap inner-page project-page">
+    <main id="main" className="wrap inner-page license-page">
       <a className="back" href={base + '/'}>
         <ArrowLeft size={15} />
         返回工作室

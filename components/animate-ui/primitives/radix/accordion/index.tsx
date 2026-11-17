@@ -1,4 +1,4 @@
-// From Animate UI efeb96f; see docs/ANIMATE_UI.md and LICENSE.md.
+// Adapted from Animate UI efeb96f; see docs/ANIMATE_UI.md and LICENSE.md.
 'use client';
 
 import * as React from 'react';
@@ -51,13 +51,14 @@ type AccordionItemProps = React.ComponentProps<typeof AccordionPrimitive.Item>;
 
 function AccordionItem(props: AccordionItemProps) {
   const { value } = useAccordion();
-  const [isOpen, setIsOpen] = React.useState(
-    value?.includes(props?.value) ?? false,
-  );
+  const selected = Array.isArray(value)
+    ? value.includes(props.value)
+    : value === props.value;
+  const [isOpen, setIsOpen] = React.useState(selected);
 
   React.useEffect(() => {
-    setIsOpen(value?.includes(props?.value) ?? false);
-  }, [value, props?.value]);
+    setIsOpen(selected);
+  }, [selected]);
 
   return (
     <AccordionItemProvider value={{ isOpen, setIsOpen, value: props.value }}>
@@ -99,56 +100,25 @@ function AccordionContent({
 }: AccordionContentProps) {
   const { isOpen } = useAccordionItem();
 
+  const closed = { height: 0, opacity: 0 };
+  const expanded = { height: 'auto', opacity: 1 };
+
   return (
-    <AnimatePresence>
-      {keepRendered ? (
+    <AnimatePresence initial={false}>
+      {(keepRendered || isOpen) && (
         <AccordionPrimitive.Content asChild forceMount>
           <motion.div
             key="accordion-content"
             data-slot="accordion-content"
-            initial={{ height: 0, opacity: 0, '--mask-stop': '0%', y: 20 }}
-            animate={
-              isOpen
-                ? { height: 'auto', opacity: 1, '--mask-stop': '100%', y: 0 }
-                : { height: 0, opacity: 0, '--mask-stop': '0%', y: 20 }
-            }
+            initial={closed}
+            animate={isOpen ? expanded : closed}
+            exit={closed}
             transition={transition}
-            style={{
-              maskImage:
-                'linear-gradient(black var(--mask-stop), transparent var(--mask-stop))',
-              WebkitMaskImage:
-                'linear-gradient(black var(--mask-stop), transparent var(--mask-stop))',
-              overflow: 'hidden',
-            }}
+            inert={!isOpen}
+            style={{ overflow: 'hidden' }}
             {...props}
           />
         </AccordionPrimitive.Content>
-      ) : (
-        isOpen && (
-          <AccordionPrimitive.Content asChild forceMount>
-            <motion.div
-              key="accordion-content"
-              data-slot="accordion-content"
-              initial={{ height: 0, opacity: 0, '--mask-stop': '0%', y: 20 }}
-              animate={{
-                height: 'auto',
-                opacity: 1,
-                '--mask-stop': '100%',
-                y: 0,
-              }}
-              exit={{ height: 0, opacity: 0, '--mask-stop': '0%', y: 20 }}
-              transition={transition}
-              style={{
-                maskImage:
-                  'linear-gradient(black var(--mask-stop), transparent var(--mask-stop))',
-                WebkitMaskImage:
-                  'linear-gradient(black var(--mask-stop), transparent var(--mask-stop))',
-                overflow: 'hidden',
-              }}
-              {...props}
-            />
-          </AccordionPrimitive.Content>
-        )
       )}
     </AnimatePresence>
   );

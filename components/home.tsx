@@ -25,7 +25,7 @@ import {
 
 function Gallery() {
   return (
-    <section id="projects" className="section">
+    <section id="projects" tabIndex={-1} className="section">
       <Reveal className="section-head">
         <div>
           <p className="kicker">Project gallery</p>
@@ -42,7 +42,10 @@ function Gallery() {
             href={base + '/projects/' + project.slug + '/'}
             key={project.slug}
           >
-            <div className="card-visual">
+            <div
+              className="card-visual"
+              data-cover-peer={base + '/projects/' + project.slug + '/'}
+            >
               <ProjectImage project={project} />
             </div>
             <div className="card-copy">
@@ -76,7 +79,7 @@ function Directory({
   entries: DirectoryEntry[];
 }) {
   return (
-    <section id={id} className="section">
+    <section id={id} tabIndex={-1} className="section directory">
       <Reveal className="section-head">
         <div>
           <p className="kicker">{label}</p>
@@ -129,14 +132,14 @@ export function Home() {
         <ArmScene />
       </section>
       <Gallery />
-      <section id="notes" className="section">
+      <section id="notes" tabIndex={-1} className="section">
         <Reveal className="section-head">
           <div>
             <p className="kicker">Field notes</p>
             <h2>学习笔记</h2>
           </div>
         </Reveal>
-        <Accordion type="single" collapsible>
+        <Accordion className="notes-list" type="single" collapsible>
           {notes.map((note) => (
             <AccordionItem key={note.id} value={note.id}>
               <AccordionTrigger className="note-trigger">
@@ -154,18 +157,20 @@ export function Home() {
           ))}
         </Accordion>
       </section>
-      <Directory
-        id="partners"
-        label="Partners"
-        title="合作伙伴"
-        entries={partners}
-      />
-      <Directory
-        id="mentors"
-        label="Faculty advisors"
-        title="指导教师"
-        entries={mentors}
-      />
+      <div className="directories">
+        <Directory
+          id="partners"
+          label="Partners"
+          title="合作伙伴"
+          entries={partners}
+        />
+        <Directory
+          id="mentors"
+          label="Faculty advisors"
+          title="指导教师"
+          entries={mentors}
+        />
+      </div>
     </main>
   );
 }
