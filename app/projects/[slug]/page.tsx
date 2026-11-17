@@ -22,7 +22,7 @@ export default async function ProjectPage({ params }: Props) {
     <main id="main" className="wrap inner-page">
       <ActionLink className="back" href={base + '/#projects'}>
         <ArrowLeft size={16} aria-hidden="true" />
-        返回项目展示
+        <span className="link-underline">返回项目展示</span>
       </ActionLink>
       <div className="project-detail-grid">
         <div className="detail-cover" data-cover-peer={base + '/'}>
@@ -40,7 +40,7 @@ export default async function ProjectPage({ params }: Props) {
             <dd>{p.content}</dd>
           </dl>
           <ActionLink className="solid" href={collaborate(p.title)}>
-            交流想法 <ExternalLink size={15} aria-hidden="true" />
+            <span className="link-underline">交流想法</span> <ExternalLink size={15} aria-hidden="true" />
           </ActionLink>
         </div>
       </div>

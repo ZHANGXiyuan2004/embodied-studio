@@ -14,8 +14,8 @@ test('手机菜单的键盘焦点跟随关闭和章节选择', async ({ page }) 
   await expect(trigger).toBeFocused();
 
   await trigger.press('Enter');
-  await panel.getByRole('link', { name: '学习笔记' }).press('Enter');
-  await expect(page).toHaveURL(/\/#notes$/);
+  await panel.getByRole('link', { name: '内容产出' }).press('Enter');
+  await expect(page).toHaveURL(/\/#outputs$/);
   await expect(panel).toHaveCount(0);
-  await expect(page.locator('#notes')).toBeFocused();
+  await expect(page.locator('#outputs')).toBeFocused();
 });

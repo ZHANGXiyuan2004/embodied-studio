@@ -62,7 +62,33 @@ test('首页按钮与伙伴链接上浮并从中间展开下划线，点击区�
   }
 });
 
-test('首页三个入口无边框，工作室简介在按钮下展开并原位收起', async ({ page }) => {
+test('项目标题、社区投稿及内页链接复用同一条居中展开的下划线', async ({ page }) => {
+  for (const [path, selectors] of [
+    ['', ['.project-card h3', '#projects .text-link', '.output-label', '.footer .link-underline']],
+    ['projects/project-1/', ['.back .link-underline', '.solid .link-underline']],
+    ['license/', ['.text-link']],
+  ] as const) {
+    await page.goto(new URL(path, url).href);
+    for (const selector of selectors) {
+      const lines = page.locator(selector);
+      await expect(lines.first()).toBeAttached();
+      for (const line of await lines.all()) {
+        const scale = () => line.evaluate(el => new DOMMatrix(getComputedStyle(el, '::after').transform).a);
+        await line.hover();
+        await expect.poll(scale).toBe(1);
+        const center = await line.evaluate(el => {
+          const lineStyle = getComputedStyle(el, '::after');
+          return parseFloat(lineStyle.transformOrigin) / parseFloat(lineStyle.width);
+        });
+        expect(center).toBeCloseTo(0.5);
+        await page.mouse.move(0, 0);
+        await expect.poll(scale).toBe(0);
+      }
+    }
+  }
+});
+
+test('简介展开时标题和三个入口联动上移，正文向下展开并与中文标题等宽', async ({ page }) => {
   for (const width of [1280, 320]) {
     await page.setViewportSize({ width, height: 844 });
     await page.goto(url);
@@ -75,18 +101,26 @@ test('首页三个入口无边框，工作室简介在按钮下展开并原位�
     }
     await expect(intro).toHaveAttribute('aria-expanded', 'false');
     await expect(body).toBeHidden();
-    const resting = (await intro.boundingBox())!;
+    const header = page.locator('.hero-kicker, .hero-title, .hero-actions .hero-action');
+    const positions = () => header.evaluateAll(els => els.map(el => el.getBoundingClientRect().top));
+    const initial = await positions();
+    const initialBottom = (await intro.boundingBox())!.y + (await intro.boundingBox())!.height;
     await intro.press('Enter');
     await expect(intro).toHaveAttribute('aria-expanded', 'true');
-    await expect(page.locator('.hero-copy').getByRole('region', { name: '工作室简介' })).toBeVisible();
-    const copy = (await page.locator('.hero-copy').boundingBox())!;
+    await expect(page.locator('.hero-copy').getByRole('region', { name: '工作室简介' })).toHaveCSS('opacity', '1');
+    const expanded = await positions();
+    const rise = initial[0] - expanded[0];
+    expect(rise).toBeGreaterThan(12);
+    expanded.forEach((top, i) => expect(initial[i] - top).toBeCloseTo(rise, 1));
     const text = (await body.boundingBox())!;
-    expect(text.y).toBeGreaterThanOrEqual(resting.y + resting.height - 1);
-    expect(text.x + text.width).toBeLessThanOrEqual(copy.x + copy.width + 1);
-    expect(await intro.boundingBox()).toEqual(resting);
+    const heading = (await page.locator('.hero-title span span').boundingBox())!;
+    expect(text.x).toBeCloseTo(heading.x, 1);
+    expect(text.width).toBeCloseTo(heading.width, 1);
+    expect(text.y + text.height).toBeGreaterThan(initialBottom);
     await intro.press('Space');
     await expect(intro).toHaveAttribute('aria-expanded', 'false');
     await expect(body).toBeHidden();
+    await expect.poll(positions).toEqual(initial);
   }
 });
 
@@ -110,6 +144,26 @@ test('三家合作伙伴的标识均已加载，图文链接指向官方页面',
       (img: HTMLImageElement) => img.naturalWidth,
     )).toBeGreaterThan(0);
   }
+});
+
+test('内容产出按类型显示不同图标，旧章节链接仍可用', async ({ page }) => {
+  await page.goto(new URL('#notes', url).href);
+  const section = page.getByRole('region', { name: '内容产出', exact: true });
+  await expect(section.getByRole('heading', { name: '内容产出' })).toBeInViewport();
+  const icons = new Set<string>();
+  for (const type of ['使用教程', '宣传视频', '活动伴礼']) {
+    const entries = section.getByRole('button', { name: new RegExp(type) });
+    expect(await entries.count()).toBeGreaterThanOrEqual(2);
+    const first = entries.first();
+    icons.add(await first.locator('.output-label svg').innerHTML());
+    await first.press('Enter');
+    await expect(first).toHaveAttribute('aria-expanded', 'true');
+    await expect(section.locator('.output-body', { hasText: '预留位' })).toBeVisible();
+    await first.press('Space');
+    await expect(first).toHaveAttribute('aria-expanded', 'false');
+    await expect(section.locator('.output-body')).toBeHidden();
+  }
+  expect(icons.size).toBe(3);
 });
 
 test('浏览社团打开协会官网，联系我们复制工作室微信号', async ({

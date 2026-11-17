@@ -11,7 +11,7 @@ export default function LicensePage() {
     <main id="main" className="wrap inner-page license-page">
       <ActionLink className="back" href={base + '/'}>
         <ArrowLeft size={16} aria-hidden="true" />
-        返回工作室
+        <span className="link-underline">返回工作室</span>
       </ActionLink>
       <div className="detail-heading">
         <h1>许可与署名</h1>
@@ -26,10 +26,10 @@ export default function LicensePage() {
         </p>
         <div className="actions">
           <ActionLink className="solid" href={collaborate('作品复用授权')}>
-            洽谈授权 <ExternalLink size={15} aria-hidden="true" />
+            <span className="link-underline">洽谈授权</span> <ExternalLink size={15} aria-hidden="true" />
           </ActionLink>
           <ActionLink
-            className="text-link"
+            className="text-link link-underline"
             href={github + '/blob/main/LICENSE'}
           >
             完整权利声明 <ExternalLink size={15} aria-hidden="true" />
@@ -56,7 +56,7 @@ export default function LicensePage() {
         </p>
         <div className="actions">
           <ActionLink
-            className="text-link"
+            className="text-link link-underline"
             href={base + '/third-party-notices.txt'}
           >
             第三方署名与许可全文 <ArrowRight size={15} aria-hidden="true" />

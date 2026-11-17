@@ -18,10 +18,6 @@ import { Menu } from './animate-ui/icons/menu';
 import { X } from './animate-ui/icons/x';
 import { Button } from './animate-ui/primitives/buttons/button';
 import {
-  Highlight,
-  HighlightItem,
-} from './animate-ui/primitives/effects/highlight';
-import {
   Popover,
   PopoverTrigger,
   PopoverPortal,
@@ -98,7 +94,7 @@ export function Reveal({
 }
 const nav = [
   { id: 'projects', title: '项目展示', icon: Layers },
-  { id: 'notes', title: '学习笔记', icon: ClipboardList },
+  { id: 'outputs', title: '内容产出', icon: ClipboardList },
   { id: 'partners', title: '合作伙伴', icon: Link2 },
   { id: 'mentors', title: '指导教师', icon: UsersRound },
 ];
@@ -184,7 +180,7 @@ function MobileNav({
                   }}
                 >
                   <Icon size={17} aria-hidden="true" />
-                  {title}
+                  <span className="link-underline">{title}</span>
                   <ChevronRight size={14} aria-hidden="true" />
                 </a>
               ))}
@@ -199,7 +195,6 @@ export function Shell({ children }: { children: ReactNode }) {
   const [active, setActive] = useState('');
   const [hovered, setHovered] = useState('');
   const [focused, setFocused] = useState('');
-  const reduced = useStudioReducedMotion();
   const highlighted = hovered || focused || active;
   const scrollingTo = useRef<string | null>(null);
   function selectSection(id: string) {
@@ -334,44 +329,33 @@ export function Shell({ children }: { children: ReactNode }) {
               }}
               className="nav"
             >
-              <Highlight
-                mode="parent"
-                controlledItems
-                value={highlighted || null}
-                click={false}
-                transition={reduced ? { duration: 0 } : controlTransition}
-                exitDelay={0}
-                boundsOffset={{ top: 3, height: -6 }}
-                containerClassName="nav-items"
-                className="nav-highlight"
-              >
+              <div className="nav-items">
                 {nav.map(({ id, title, icon: Icon }) => (
-                  <HighlightItem key={id} asChild value={id}>
-                    <a
-                      href={base + '/#' + id}
-                      aria-current={active === id ? 'location' : undefined}
-                      onPointerEnter={(event) => {
-                        if (event.pointerType !== 'touch') setHovered(id);
-                      }}
-                      onFocus={(event) => {
-                        if (event.currentTarget.matches(':focus-visible'))
-                          setFocused(id);
-                      }}
-                      onClick={(event) => followSection(event, selectSection)}
-                    >
-                      <Icon size={15} aria-hidden="true" />
-                      {title}
-                    </a>
-                  </HighlightItem>
+                  <a
+                    key={id}
+                    href={base + '/#' + id}
+                    aria-current={active === id ? 'location' : undefined}
+                    data-highlighted={highlighted === id || undefined}
+                    onPointerEnter={(event) => {
+                      if (event.pointerType !== 'touch') setHovered(id);
+                    }}
+                    onFocus={(event) => {
+                      if (event.currentTarget.matches(':focus-visible')) setFocused(id);
+                    }}
+                    onClick={(event) => followSection(event, selectSection)}
+                  >
+                    <Icon size={15} aria-hidden="true" />
+                    <span className="link-underline">{title}</span>
+                  </a>
                 ))}
-              </Highlight>
+              </div>
             </nav>
             <ActionLink
               className="github-link"
               href={github}
               aria-label="工作室 GitHub 仓库"
             >
-              <span>GitHub</span>
+              <span className="link-underline">GitHub</span>
               <ExternalLink size={14} aria-hidden="true" />
             </ActionLink>
             <MobileNav active={active} onSelect={selectSection} />
@@ -382,9 +366,9 @@ export function Shell({ children }: { children: ReactNode }) {
       <footer className="footer wrap">
         <span>© 2026 {studioName}</span>
         <nav aria-label="页脚导航">
-          <a href={base + '/license/'}>许可与署名</a>
+          <a href={base + '/license/'}><span className="link-underline">许可与署名</span></a>
           <ActionLink href={github}>
-            GitHub 仓库 <ExternalLink size={14} aria-hidden="true" />
+            <span className="link-underline">GitHub 仓库</span> <ExternalLink size={14} aria-hidden="true" />
           </ActionLink>
         </nav>
       </footer>

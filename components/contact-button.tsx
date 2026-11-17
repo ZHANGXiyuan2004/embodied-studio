@@ -40,7 +40,7 @@ export function ContactButton() {
         aria-label="联系我们"
         onClick={copyWeChat}
       >
-        <span className="action-label">
+        <span className="action-label link-underline">
           {result === 'copied' ? '已复制' : '联系我们'}
           {result === 'copied' ? (
             <Check size={16} aria-hidden="true" />

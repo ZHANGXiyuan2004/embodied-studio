@@ -20,7 +20,7 @@ npm run dev
 ## 更新示例
 
 - 在 `lib/studio.ts` 编辑项目标题、项目人员和项目内容。将图片放入 `public/`，在项目条目增加 `image: { file: '/文件名.webp', alt: '画面描述' }`，列表和详情页会同时使用该图。
-- 在同一文件的 `notes` 添加 `{ id, title, body }`，每篇笔记自动成为一个可展开的条目。
+- 在同一文件的 `outputs` 添加 `{ id, kind, title, body }`。类型 `tutorial`（使用教程）、`video`（宣传视频）和 `keepsake`（活动伴礼）会自动匹配图标和分类名称。每条内容都可独立展开。
 - 在 `partners` 或 `mentors` 添加 `{ id, name }`。展示伙伴标识时，将图片放入 `public/partners/`，在条目添加 `link: { href: '官网地址', logo: '/partners/文件名' }`，并在第三方署名中记录图片来源。名单为空时仅显示栏目标题。同一列表内的 `id` 和项目 `slug` 分别保持唯一且稳定，可直接调整条目顺序。
 - 重新构建后，项目会生成各自的详情页。项目卡片、章节布局和翻页动效都共用模板。投稿入口通向仓库的 GitHub Issues。
 

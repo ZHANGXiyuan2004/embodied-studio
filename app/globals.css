@@ -166,16 +166,6 @@ figure {
 .nav a[aria-current] {
   color: var(--ink);
 }
-.nav-highlight {
-  pointer-events: none;
-}
-.nav-highlight::after {
-  content: '';
-  position: absolute;
-  inset: auto 10px 0;
-  height: 2px;
-  background: var(--accent-ink);
-}
 .github-link {
   gap: 6px;
   min-height: 44px;
@@ -212,6 +202,20 @@ figure {
   padding-top: clamp(30px, 6.8vw, 96px);
   container-type: inline-size;
 }
+.hero-composition {
+  --intro-rise: clamp(24px, 3vw, 38px);
+  inline-size: max-content;
+  max-inline-size: 100%;
+  transition: translate var(--control-time) var(--ease-studio);
+}
+.hero-composition:has(.intro-trigger[aria-expanded='true']) {
+  translate: 0 calc(-1 * var(--intro-rise));
+}
+/* The Chinese heading sets the column width, even while the paragraph opens. */
+.hero-kicker,
+.intro-accordion {
+  contain: inline-size;
+}
 .hero-kicker {
   margin-bottom: 14px;
 }
@@ -221,14 +225,14 @@ figure {
   font-weight: 640;
   letter-spacing: -0.072em;
   line-height: 1.09;
-  margin: 0 0 20px -0.038em;
+  margin: 0 0 20px;
 }
 .studio-intro {
-  max-width: 27em;
   padding-top: 8px;
   color: var(--muted);
   font-size: clamp(14px, 1.2vw, 16px);
   line-height: 1.85;
+  text-align: justify;
   text-wrap: pretty;
 }
 .actions {
@@ -272,15 +276,10 @@ figure {
   font-size: 13px;
   font-weight: 500;
 }
-.text-link:hover,
-.contribute a:hover,
-.back:hover,
-.footer a:hover {
-  text-decoration: underline;
-  text-underline-offset: 4px;
-}
 .hero-actions {
   display: flex;
+  inline-size: max-content;
+  max-inline-size: 100cqi;
   flex-wrap: wrap;
   align-items: center;
   gap: 0 clamp(12px, 3.5cqi, 22px);
@@ -308,24 +307,32 @@ figure {
 }
 .lift-action {
   --action-rise: 0px;
-  --underline-scale: 0;
 }
 .action-label {
-  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 8px;
   line-height: 1.5;
 }
-.action-label::after {
+.link-underline {
+  position: relative;
+}
+.link-underline::after {
+  pointer-events: none;
   content: '';
   position: absolute;
   inset: auto 0 -3px;
   height: 1px;
-  background: var(--accent-ink);
-  transform: scaleX(var(--underline-scale));
+  background: var(--underline-color, var(--accent-ink));
+  transform: scaleX(var(--underline-scale, 0));
   transform-origin: center;
   transition: transform var(--control-time) var(--ease-studio);
+}
+.solid {
+  --underline-color: currentColor;
+}
+:where(a, button):focus-visible {
+  --underline-scale: 1;
 }
 /* Move the visible parts while keeping the pointer target stationary. */
 .lift-action .action-label,
@@ -335,13 +342,21 @@ figure {
 }
 .lift-action:focus-visible {
   --action-rise: -3px;
-  --underline-scale: 1;
 }
 @media (hover: hover) {
-  .lift-action:hover {
-    --action-rise: -3px;
+  :where(a, button):hover {
     --underline-scale: 1;
   }
+  .lift-action:hover {
+    --action-rise: -3px;
+  }
+}
+.nav a {
+  --underline-scale: 0;
+}
+.nav a[data-highlighted],
+.mobile-nav-panel a[aria-current] {
+  --underline-scale: 1;
 }
 @media (prefers-reduced-motion: reduce) {
   .lift-action:is(:hover, :focus-visible) {
@@ -522,11 +537,6 @@ h2 {
   display: flex;
   flex-direction: column;
 }
-.project-card:is(:hover, :focus-visible) h3 {
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 5px;
-}
 .card-visual {
   overflow: hidden;
 }
@@ -561,7 +571,7 @@ h2 {
 .card-copy p,
 .strip-body p,
 .contribute p,
-.note-body,
+.output-body,
 .next-step p,
 .detail-heading > p:last-child,
 .hint {
@@ -595,26 +605,27 @@ h2 {
   flex-shrink: 0;
 }
 .equipment-strip .section-head,
-.section#notes .section-head {
+.section#outputs .section-head {
   align-items: center;
 }
 .strip-body .outline {
   flex-shrink: 0;
 }
-.note-trigger {
+.output-trigger {
   align-items: center;
   padding-block: 20px;
   border-radius: 0;
   font-size: 17px;
   color: var(--ink);
 }
-.note-trigger small {
-  display: inline-block;
-  min-width: 94px;
-  font: 11px var(--mono);
+.output-kind {
+  margin-inline-start: auto;
+  flex: none;
   color: var(--muted);
+  font-size: 12px;
+  font-weight: 400;
 }
-.note-body,
+.output-body,
 .note-source {
   margin-left: 28px;
   max-width: 790px;
@@ -1002,6 +1013,9 @@ dialog .actions {
   .hero-copy {
     padding-top: 0;
   }
+  .hero-composition {
+    --intro-rise: 16px;
+  }
   .hero-title {
     margin-bottom: 14px;
   }
@@ -1059,13 +1073,10 @@ dialog .actions {
     flex-direction: column;
     gap: 12px;
   }
-  .note-trigger {
+  .output-trigger {
     font-size: 15px;
   }
-  .note-trigger small {
-    min-width: 62px;
-  }
-  .note-body,
+  .output-body,
   .note-source {
     margin-left: 0;
   }
@@ -1125,10 +1136,6 @@ dialog .actions {
   }
   .header-right .github-link svg {
     display: none;
-  }
-  .note-trigger small {
-    display: block;
-    margin-bottom: 5px;
   }
   .card-copy {
     padding: 2px 0 2px 12px;
@@ -1343,20 +1350,20 @@ dialog .actions {
 
 .project-fields dd,
 .people-grid li,
-.note-body,
+.output-body,
 .card-copy h3 {
   overflow-wrap: anywhere;
 }
-.note-label {
+.output-label {
   display: inline-flex;
   align-items: center;
   gap: 11px;
 }
-.note-label svg {
+.output-label svg {
   flex-shrink: 0;
   color: var(--muted);
 }
-.note-body {
+.output-body {
   white-space: pre-line;
 }
 .nav a {
@@ -1365,30 +1372,30 @@ dialog .actions {
 .nav a:focus-visible {
   color: var(--ink);
 }
-.notes-list [data-slot='accordion-item'] {
+.outputs-list [data-slot='accordion-item'] {
   border-color: var(--line);
 }
-.note-trigger {
+.output-trigger {
   align-items: center;
   padding: 12px 0;
   border-radius: 0;
   transition: background-color var(--control-time) var(--ease-studio);
 }
-.note-trigger:is(:hover, :focus-visible),
-.note-trigger[data-state='open'] {
+.output-trigger:is(:hover, :focus-visible),
+.output-trigger[data-state='open'] {
   color: var(--accent-ink);
   text-decoration: none;
 }
-.note-trigger:focus-visible {
+.output-trigger:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: -3px;
   box-shadow: none;
 }
-.note-trigger > svg {
+.output-trigger > svg {
   transition-duration: var(--control-time);
   transition-timing-function: var(--ease-studio);
 }
-.notes-list .note-body {
+.outputs-list .output-body {
   margin: 0;
   padding: 4px 0 0 28px;
 }
