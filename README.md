@@ -1,6 +1,6 @@
 # 行知具身工作室 · 演示站
 
-[工作室演示站](https://chashe-embodied-studio.pages.dev/)
+[行知具身工作室官网](https://xingzhi-embodied-studio.pages.dev/)
 
 项目和成员采用示例资料。合作伙伴栏链接至智元机器人、阿里云和 Xbotics 社区。指导教师有独立栏目，可在确认名单后添加姓名。首页使用 Franka Panda 三维模型，可点击方块抓取、再次点击台面放置，也支持触屏和键盘。
 
@@ -31,7 +31,7 @@ npm run dev
 ```sh
 npm ci
 npm run build
-npx wrangler@4 pages deploy out --project-name chashe-embodied-studio --branch main
+npx wrangler@4 pages deploy out --project-name xingzhi-embodied-studio --branch main
 ```
 
 ## 许可与署名
