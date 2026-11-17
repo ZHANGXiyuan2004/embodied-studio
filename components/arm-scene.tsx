@@ -30,6 +30,9 @@ export function ArmScene() {
       abort = new AbortController();
     async function load() {
       try {
+        const page = document as Document & { activeViewTransition?: ViewTransition };
+        await page.activeViewTransition?.finished;
+        if (abort.signal.aborted) return;
         const [{ attachArm }, model] = await Promise.all([
           import('./arm/controller'),
           fetch(base + '/franka-panda.glb', { signal: abort.signal }).then(
@@ -56,8 +59,14 @@ export function ArmScene() {
         if (!abort.signal.aborted) setFailed(true);
       }
     }
-    void load();
+    const visibility = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      visibility.disconnect();
+      void load();
+    }, { rootMargin: '-74px 0px 0px' });
+    visibility.observe(canvas);
     return () => {
+      visibility.disconnect();
       abort.abort();
       controller.current?.destroy();
       controller.current = null;

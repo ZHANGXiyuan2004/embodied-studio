@@ -1422,12 +1422,11 @@ dialog .actions {
   }
   ::view-transition-group(project-cover) {
     z-index: 2;
-    animation-duration: var(--page-time);
-    animation-timing-function: var(--ease-studio);
+    animation-duration: 560ms;
+    animation-timing-function: cubic-bezier(0.35, 0, 0.2, 1);
   }
   ::view-transition-image-pair(project-cover) {
     overflow: clip;
-    border-radius: var(--card-radius);
     isolation: isolate;
   }
   ::view-transition-old(project-cover),
@@ -1435,6 +1434,17 @@ dialog .actions {
     height: 100%;
     width: 100%;
     object-fit: cover;
+    mix-blend-mode: normal;
+  }
+  /* Keep one solid image under the handoff, using the detailed cover for most of the trip. */
+  ::view-transition-old(project-cover) {
+    animation: none;
+  }
+  ::view-transition-new(project-cover) {
+    animation: cover-handoff 180ms ease-in-out 50ms both;
+  }
+  :root:active-view-transition-type(project-return)::view-transition-new(project-cover) {
+    animation-delay: 300ms;
   }
   ::view-transition-group(studio-header) {
     z-index: 3;
@@ -1467,6 +1477,34 @@ dialog .actions {
   :root:has(.hero)::view-transition-new(root) {
     animation-name: sheet-return;
   }
+  :root:active-view-transition-type(project) {
+    --project-offset: 10px;
+  }
+  :root:active-view-transition-type(project-return) {
+    --project-offset: -10px;
+  }
+  :root:active-view-transition-type(project)::view-transition {
+    background: var(--paper);
+  }
+  :root:active-view-transition-type(project)::view-transition-old(root) {
+    z-index: 0;
+    animation: project-page-leave 200ms ease-in both;
+  }
+  :root:active-view-transition-type(project)::view-transition-new(root) {
+    z-index: 1;
+    animation: project-page-enter 400ms cubic-bezier(0.2, 0.65, 0.3, 1) 90ms both;
+  }
+}
+@keyframes cover-handoff {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes project-page-leave {
+  to { opacity: 0; transform: translateX(calc(-1 * var(--project-offset))); }
+}
+@keyframes project-page-enter {
+  from { opacity: 0; transform: translateX(var(--project-offset)); }
+  to { opacity: 1; transform: none; }
 }
 @keyframes sheet-open {
   from {

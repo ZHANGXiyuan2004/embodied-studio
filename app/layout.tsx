@@ -13,15 +13,31 @@ export const metadata: Metadata = {
 // Register before first paint so both cold loads and history restores can pair the two covers.
 const projectTransitions = `
   (() => {
-    function pair(transition, peerURL, destinationURL) {
-      if (!transition || !peerURL || !destinationURL) return;
-      const hash = new URL(destinationURL).hash;
-      if (hash && hash !== '#projects') return;
+    function pair(transition, activation, incoming) {
+      const destination = activation?.entry?.url;
+      const peerURL = incoming ? activation?.from?.url : destination;
+      if (!transition || !destination || !peerURL) return;
       const peer = new URL(peerURL);
       if (peer.origin !== location.origin) return;
       const selector = '[data-cover-peer="' + CSS.escape(peer.pathname) + '"]';
       const cover = document.querySelector(selector);
       if (!cover) return;
+      const onGallery = !!cover.closest('.project-card');
+      const returning = incoming ? onGallery : !onGallery;
+      const traversing = activation.navigationType === 'traverse';
+      if (!traversing && new URL(destination).hash !== (returning ? '#projects' : '')) return;
+      if (incoming) {
+        transition.types?.add('project');
+        if (returning) transition.types?.add('project-return');
+        // Explicit returns reveal the selected card. History restores its own scroll position.
+        if (onGallery && !traversing) {
+          const rect = cover.getBoundingClientRect();
+          const headerBottom = document.querySelector('.site-header')?.getBoundingClientRect().bottom || 0;
+          if (rect.bottom > innerHeight || rect.top < headerBottom) {
+            cover.scrollIntoView({ block: 'center', behavior: 'instant' });
+          }
+        }
+      }
       const bounds = cover.getBoundingClientRect();
       if (bounds.bottom <= 0 || bounds.top >= innerHeight) return;
       const style = new CSSStyleSheet();
@@ -32,11 +48,10 @@ const projectTransitions = `
       });
     }
     addEventListener('pageswap', event => {
-      const next = event.activation?.entry?.url;
-      pair(event.viewTransition, next, next);
+      pair(event.viewTransition, event.activation, false);
     });
     addEventListener('pagereveal', event => {
-      pair(event.viewTransition, window.navigation?.activation?.from?.url, location.href);
+      pair(event.viewTransition, window.navigation?.activation, true);
     });
   })();
 `;
@@ -51,6 +66,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           }
         </style>
         <script dangerouslySetInnerHTML={{ __html: projectTransitions }} />
+        <script type="speculationrules" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          prefetch: [{ where: { selector_matches: '.project-card, .project-return' }, eagerness: 'moderate' }],
+        }) }} />
         <link rel="expect" href="#main" blocking="render" />
       </head>
       <body>
